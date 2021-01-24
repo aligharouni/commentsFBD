@@ -98,13 +98,11 @@ M <- replicate(n_traj,rnorm(n_sample,mean = n_sample/2))
 ```
 
 ```{r fixedtime1, fig.cap="Fixed-time mean/median; the pointwise mean at each time step",basefig=TRUE}
-{matplot(x=t,y=M,type = "l", lty=1, col = g_cols[1], ylab="")
+matplot(x=t,y=M,type = "l", lty=1, col = g_cols[1], ylab="")
 lines(t,rowMeans(M), col = g_cols[2], lwd = 2)
 lines(t, apply(M,1,median),col=g_cols[3])
 legend("topright", legend = g_labels[1:3] , col=g_cols[1:3],
-       lty=1, bg="white")
-}
-
+       lty=1, bg="white")       
 ```
 
 Calculate all of the pairwise Fréchet distances between trajectories:
@@ -144,7 +142,6 @@ but the rankings for (sum of distances to all other curves) and (sum of squared 
 
 ```{r fcor}
 cor.test(md1,md2,method="spearman")$estimate
-fm <- fm1 ## we use median-like
 ```
 
 Find the envelope of the most central 50% (is this right??)
@@ -163,17 +160,16 @@ pqmax <- apply(M,1,quantile,0.75)
 ```
 
 ```{r plot_all,basefig=TRUE,fig.cap="fixed-time and Fréchet metrics: gray (wide)=50% central Fréchet region, green (narrow)=fixed-time central region"}
-{matplot(x=t,y=M,type = "l", col = g_cols[1], lty=1,ylim=c(0,10))
+matplot(x=t,y=M,type = "l", col = g_cols[1], lty=1,ylim=c(0,10))
 lines(t,rowMeans(M), col = g_cols[2], lwd = 2)
 lines(t,apply(M,1,median), col = g_cols[3], lwd = 2)
-lines(t,M[,fm], col = g_cols[4], lwd = 2)
+lines(t,M[,fm1], col = g_cols[4], lwd = 2)
 polygon(c(t,rev(t)),c(fmin,rev(fmax)), col=adjustcolor("black",alpha.f=0.05),
         border=NA)
 polygon(c(t,rev(t)),c(pqmin,rev(pqmax)), col=adjustcolor("green",alpha.f=0.2),
         border=NA)
 legend("topright", legend = g_labels,
        col= g_cols, lty=1, bg="white")       
-}
 ```
 
 ---
@@ -189,4 +185,18 @@ It would be interesting to apply this approach to @juul2021's examples. Or we co
 
 More searching for prior art: does anyone in the functional data analysis world do anything like this already? Where would we look/who would we ask? ("Fréchet" is a nice distinctive search term, but so far I have found anything directly relevant ...)
 
+## Playing with norms
+
+```{r n1}
+tvec <- seq(0,10,length=101)
+y1 <- ifelse(tvec<5,0,1)
+y2 <- ifelse(tvec<5.5,0,1)
+matplot(tvec,cbind(y1,y2),type="l")
+max(abs(y1-y2))
+Frechet(matrix(y1),matrix(y2))
+```
+
+Consider distances via [dynamic time warping](https://en.wikipedia.org/wiki/Dynamic_time_warping), which is also implemented in `SimilarityMeasures` and might be slightly more quantitative/less "topological" than Fréchet distances? (Although Mahalanobis on probes/features also seems to make a lot of sense.)
+
 ## Reference(s)
+
