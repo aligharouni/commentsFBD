@@ -1,0 +1,188 @@
+---
+title: "Fréchet distance between curves and curve-based descriptive statistics"
+author: "Ali Gharouni and Ben Bolker"
+date: "`r format(Sys.time(),'%d %b %Y')`"
+output: html_document
+references:
+- id: juul2021
+  author:
+  - family: Juul
+    given: Jonas L.
+  - family: Græsbøll
+    given: Kaare
+  - family: Christiansen
+    given: Lasse Engbo
+  - family: Lehmann
+    given: Sune
+  container-title: Nature Physics
+  DOI: 10.1038/s41567-020-01121-y
+  ISSN: 1745-2481
+  issue: '1'
+  language: en
+  page: 5-8
+  source: www.nature.com
+  title: Fixed-time descriptive statistics underestimate extremes of epidemic curve
+    ensembles
+  URL: https://www.nature.com/articles/s41567-020-01121-y
+  volume: '17'
+  issued:
+    date-parts:
+    - - '2021'
+      - 1
+---
+
+<!-- In order to keep this self-contained, YAML header includes a single reference (exported from Zotero in JSON format, then used an online JSON-to-YAML convertor <https://www.json2yaml.com/>; for more references it would be better to use a separate .bib file -->
+
+```{r setup, include=FALSE}
+## https://stackoverflow.com/questions/55009313/how-to-use-cairo-pngs-in-r-markdown
+## requires Cairo package ...
+knitr::opts_chunk$set(echo = TRUE, dev.args = list(png = list(type = "cairo")))
+knitr::knit_hooks$set(basefig=function(before, options, envir) {
+                   if (before) {
+                       par(bty="l",las=1)
+                   } else { }
+           })
+```
+
+```{r graph_setup, echo=FALSE}
+g_labels <- c("trajectories", "fixed-time mean",
+            "fixed-time median", "Fréchet mean")
+g_cols <- c("gray","blue","purple","red")
+```
+
+This is inspired by @juul2021. 
+
+In the paper, pitfalls of fixed-time mean trajectory (the pointwise mean at each time step) are explored and an alternative curve-based method, which is based on ranking the curves and sampling, is studied.
+
+Juul *et al* suggest three different ways to rank the centrality of curves;
+
+- all-or-nothing ranking method (Fig.2b,c)
+- weighted ranking (Fig.2d)
+- according to some feature of interest (Fig.2e), e.g. the projected peak value
+
+The first two approaches, which involve subsampling, seem odd to me (BMB). Is the sampling-based approach done to minimize computational cost? The approach suggested below is computationally expensive, since it requires computing *all* pairwise distances between the curves in the ensemble (there may be a clever way to do this, although a quick lit search gives only metric-specific algorithms [e.g. on the space of phylogenetic trees or on the hypersphere], not general ideas).
+
+Our approach is to use the Fréchet distance (see below) and quantiles of centrality.
+  
+- suppose we have a set of trajectories.
+- Fréchet distance between the trajectories to be calculated,
+- the distribution of the distances can be estimated, (**BMB**: what does this tell us?)
+- the curve-based descriptive statistics can be [?] as follows 
+  (1) ranking the curves from more central (closer to the distribution mean/median I propose) to less central
+  (2) Plot the envelope containing the most central curves, i.e. the pointwise min/max curves of a subset of curves with the lowest sum (or sum of squares) of distances to the other curves.
+
+## Fréchet distances
+
+The [Fréchet distance](https://en.wikipedia.org/wiki/Fr%C3%A9chet_distance) is a distance metric for curves.
+
+```{r packages, echo=FALSE, message=FALSE}
+library(SimilarityMeasures) ## for Fréchet distance computation
+```
+
+<!-- BMB: avoid chunk names containing spaces etc. -->
+
+```{r simple_examples, echo= FALSE, results="hide"}
+# Creating two trajectories.
+path1 <- matrix(c(0, 1, 2, 3, 0, 1, 2, 3), 4)
+path2 <- matrix(c(0, 1, 2, 3, 4, 5, 6, 7), 4)
+# Running the Fréchet distance algorithm.
+Frechet(path1, path2)
+```
+
+```{r simple2}
+n_sample <- 10 ## num of data points, days
+n_traj <- 20 ## number of trajectories
+t <- 1:n_sample
+set.seed(1234)
+M <- replicate(n_traj,rnorm(n_sample,mean = n_sample/2))
+```
+
+```{r fixedtime1, fig.cap="Fixed-time mean/median; the pointwise mean at each time step",basefig=TRUE}
+matplot(x=t,y=M,type = "l", lty=1, col = g_cols[1], ylab="")
+lines(t,rowMeans(M), col = g_cols[2], lwd = 2)
+lines(t, apply(M,1,median),col=g_cols[3])
+legend("topright", legend = g_labels[1:3] , col=g_cols[1:3],
+       lty=1, bg="white")       
+```
+
+Calculate all of the pairwise Fréchet distances between trajectories:
+
+```{r frechet_dist}
+dmat <- matrix(NA, n_traj, n_traj)
+diag(dmat) <- 0
+for (i in 1:(n_traj-1)) {
+    for (j in (i+1):n_traj) {
+        dmat[i,j] <- Frechet(matrix(M[,i]),matrix(M[,j]))
+    }
+}
+## symmetrize (is there something built-in? Matrix::forceSymmetric
+##  converts to a fancy Matrix object ...
+dmat[lower.tri(dmat)] <- t(dmat)[lower.tri(dmat)]
+stopifnot(isSymmetric(dmat))
+```
+
+# histogram of Fréchet dist
+```{r fig.cap="density plot of Fréchet distances"}
+hist(dmat[lower.tri(dmat)],xlab="Fréchet distance",main="",breaks=20)
+```
+
+Find the [Fréchet mean](https://en.wikipedia.org/wiki/Fr%C3%A9chet_mean) (min average distance = most central point), considering the ensemble of curves to be the entire set of possibilities
+
+```{r frechet2}
+## Fréchet mean corresponding to arith mean: minimize sum of squares of distances
+md2 <- rowSums(dmat^2)  
+fm2 <- which.min(md2)
+## Fm corresponding to median: minimize sum of distances 
+md1 <- rowSums(dmat)
+fm1 <- which.min(md1)
+```
+
+In this case the Fréchet mean & median are the same;
+but the rankings for (sum of distances to all other curves) and (sum of squared distances) are not quite identical, so regions will differ. We'll use the 'median-like' criterion (sum of distances).
+
+```{r fcor}
+cor.test(md1,md2,method="spearman")$estimate
+```
+
+Find the envelope of the most central 50% (is this right??)
+
+```{r find_envelope}
+central_curves <- which(md1<quantile(md1,0.5))
+## POINTWISE min/max of these curves (?)
+fmin <- apply(M[,central_curves],1,min)
+fmax <- apply(M[,central_curves],1,max)
+```
+
+Compute pointwise central 50% quantiles for comparison:
+```{r pointquant}
+pqmin <- apply(M,1,quantile,0.25)
+pqmax <- apply(M,1,quantile,0.75)
+```
+
+```{r plot_all,basefig=TRUE,fig.cap="fixed-time and Fréchet metrics: gray (wide)=50% central Fréchet region, green (narrow)=fixed-time central region"}
+matplot(x=t,y=M,type = "l", col = g_cols[1], lty=1,ylim=c(0,10))
+lines(t,rowMeans(M), col = g_cols[2], lwd = 2)
+lines(t,apply(M,1,median), col = g_cols[3], lwd = 2)
+lines(t,M[,fm], col = g_cols[4], lwd = 2)
+polygon(c(t,rev(t)),c(fmin,rev(fmax)), col=adjustcolor("black",alpha.f=0.05),
+        border=NA)
+polygon(c(t,rev(t)),c(pqmin,rev(pqmax)), col=adjustcolor("green",alpha.f=0.2),
+        border=NA)
+legend("topright", legend = g_labels,
+       col= g_cols, lty=1, bg="white")       
+```
+
+---
+
+The region here (which is supposed to represent the central 50% of the sample) seems a bit odd; it is much wider than the pointwise 50% range. Maybe that's as expected?
+
+The Fréchet distance is a natural choice given that we are working with curves, but there's no reason that we have to use that distance metric: the Fréchet **mean** (and associated concepts of centrality) is (IMO) more important than the choice of distance metric. For example, we could use a Mahalanobis distance on the time points (although this doesn't include any information, e.g., about the time-ordering of the points, which seems weird?), or the Mahalanobis distance of a set of epidemiologically relevant metrics (e.g. {peak time, peak height, time to 5% of cumulative infection, epidemic duration}).
+
+It would be interesting to apply this approach to @juul2021's examples. Or we could apply Juul *et al.*'s algorithms to this example.
+
+- Does our approach have any advantages other than being (apparently) better posed?
+- Does @juul2021's sampling-based approach have any theoretical justification? Does it correspond to some kind of approximation of central components as defined here? (The distance metric is certainly different ...)
+
+More searching for prior art: does anyone in the functional data analysis world do anything like this already? Where would we look/who would we ask? ("Fréchet" is a nice distinctive search term, but so far I have found anything directly relevant ...)
+
+## Reference(s)
