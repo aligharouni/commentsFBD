@@ -185,6 +185,11 @@ It would be interesting to apply this approach to @juul2021's examples. Or we co
 
 More searching for prior art: does anyone in the functional data analysis world do anything like this already? Where would we look/who would we ask? ("Fréchet" is a nice distinctive search term, but so far I have found anything directly relevant ...)
 
+AGh:[Virginia Vassilevska Williams](https://scholar.google.com/citations?hl=en&user=Wph6P_IAAAAJ&view_op=list_works&sortby=pubdate) has worked on the sequence walk problem. She has a youtube [talk](https://www.youtube.com/watch?v=XCoCiXIShyk). 
+For theoretical stuff see this paper: 
+Tight Hardness Results for LCS and Other Sequence Similarity Measures
+2015 IEEE
+
 ## Playing with norms
 
 ```{r n1}
@@ -197,6 +202,7 @@ Frechet(matrix(y1),matrix(y2))
 ```
 
 Consider distances via [dynamic time warping](https://en.wikipedia.org/wiki/Dynamic_time_warping), which is also implemented in `SimilarityMeasures` and might be slightly more quantitative/less "topological" than Fréchet distances? (Although Mahalanobis on probes/features also seems to make a lot of sense.)
+
 
 ## Reference(s)
 
