@@ -203,6 +203,6 @@ Frechet(matrix(y1),matrix(y2))
 
 Consider distances via [dynamic time warping](https://en.wikipedia.org/wiki/Dynamic_time_warping), which is also implemented in `SimilarityMeasures` and might be slightly more quantitative/less "topological" than Fréchet distances? (Although Mahalanobis on probes/features also seems to make a lot of sense.)
 
-
+Note that in the example above, n1, any horizontal shift of curve, results in 0 Fréchet distance. 
 ## Reference(s)
 
