@@ -199,10 +199,49 @@ y2 <- ifelse(tvec<5.5,0,1)
 matplot(tvec,cbind(y1,y2),type="l")
 max(abs(y1-y2))
 Frechet(matrix(y1),matrix(y2))
+DTW(matrix(y1),matrix(y2))
 ```
 
 Consider distances via [dynamic time warping](https://en.wikipedia.org/wiki/Dynamic_time_warping), which is also implemented in `SimilarityMeasures` and might be slightly more quantitative/less "topological" than Fréchet distances? (Although Mahalanobis on probes/features also seems to make a lot of sense.)
 
 Note that in the example above, n1, any horizontal shift of curve, results in 0 Fréchet distance. 
+
+
+## Juul et al's sample data set
+
+Retrieving and unpacking the simulated epidemic curves from
+the [curvestat repo](https://github.com/jonassjuul/curvestat/).
+
+`npy`-loading instructions  taken from [here](https://cran.r-project.org/web/packages/RcppCNPy/vignettes/UsingReticulate.pdf)
+
+```{r get_juul}
+if (!file.exists("juul1.csv")) {
+    download.file("https://github.com/jonassjuul/curvestat/raw/master/curvestat/tests/test_data/curves_DKE3.npy", dest="juul1.npy")
+    library(reticulate)
+    np <- import("numpy")
+    a <- np$load("juul1.npy",allow_pickle=TRUE)[[1]]
+    m <- do.call(cbind,a)
+    write.table(m,file="juul1.csv",row.names=FALSE,col.names=FALSE,
+                sep=",")
+} else {
+    m <- as.matrix(read.csv("juul1.csv"))
+}
+```
+
+```{r plot_juul}
+par(las=1,bty="l")
+matplot(m,type="l",col=adjustcolor("black",alpha.f=0.2),lty=1,
+        ylab="")
+```
+
+## To do
+
+- think about distances more; try implementing Mahalanobis dists for probes?
+- difference between "closest to Fréchet mean" and "most central" ?
+- efficient algorithms?
+- think about Juul et al's sampling algorithms: are they principled in some way we don't understand?
+- efficient algorithms?
+
 ## Reference(s)
+
 
