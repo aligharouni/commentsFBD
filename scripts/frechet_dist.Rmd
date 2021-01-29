@@ -206,6 +206,24 @@ Consider distances via [dynamic time warping](https://en.wikipedia.org/wiki/Dyna
 
 Note that in the example above, n1, any horizontal shift of curve, results in 0 Fréchet distance. 
 
+## Mahalanobis norm 
+Mahalanobis norm can be used to determine whether a sample is an outlier, whether a process is in control or whether a sample is a member of a group or not (see [Richard G. Brereto's paper](https://onlinelibrary.wiley.com/doi/full/10.1002/cem.2692)).
+
+
+```{r mahalanobis simple example}
+
+y <- cbind(y1,y2)
+sy <- cov(y)
+my <- mahalanobis(y,colMeans(y),sy)
+## By definition the squared mahalanobis norm of y= (y-colMeans(y)) * sy^-1 * t((y-colMeans(y)))   
+## TODO: check it!  
+matplot(tvec,cbind(y1,y2),type="l",col = g_cols[1], lty=1,ylim=c(0,20))
+lines(tvec,my, col = g_cols[2], lwd = 2)
+legend("topright", legend = c(g_labels[1],"mahalanobis dist"),
+       col= g_cols[1:2], lty=1, bg="white")
+```
+
+Question: what do we mean by "Mahalanobis on probes/features"?
 
 ## Juul et al's sample data set
 
@@ -234,13 +252,12 @@ matplot(m,type="l",col=adjustcolor("black",alpha.f=0.2),lty=1,
         ylab="")
 ```
 
-## To do
+## mahalanobis measure
 
-- think about distances more; try implementing Mahalanobis dists for probes?
-- difference between "closest to Fréchet mean" and "most central" ?
-- efficient algorithms?
-- think about Juul et al's sampling algorithms: are they principled in some way we don't understand?
-- efficient algorithms?
+```{r mahalanobis example}
+
+```
+
 
 ## Reference(s)
 
