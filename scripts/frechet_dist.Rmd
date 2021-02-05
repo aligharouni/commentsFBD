@@ -42,8 +42,7 @@ knitr::knit_hooks$set(basefig=function(before, options, envir) {
                        par(bty="l",las=1)
                    } else { }
 })
-library("reticulate")
-## use_python("/usr/bin/python3")
+
 ```
 
 ```{r graph_setup, echo=FALSE}
@@ -52,6 +51,10 @@ g_labels <- c("trajectories", "fixed-time mean",
 g_cols <- c("gray","blue","purple","red")
 ```
 
+```{r packages, echo=FALSE, message=FALSE}
+library(SimilarityMeasures) ## for Fréchet distance computation
+library("reticulate") ## use_python("/usr/bin/python3")
+```
 This is inspired by @juul2021. 
 
 In the paper, pitfalls of fixed-time mean trajectory (the pointwise mean at each time step) are explored and an alternative curve-based method, which is based on ranking the curves and sampling, is studied.
@@ -77,18 +80,14 @@ Our approach is to use the Fréchet distance (see below) and quantiles of centra
 
 The [Fréchet distance](https://en.wikipedia.org/wiki/Fr%C3%A9chet_distance) is a distance metric for curves.
 
-```{r packages, echo=FALSE, message=FALSE}
-library(SimilarityMeasures) ## for Fréchet distance computation
-```
-
-<!-- BMB: avoid chunk names containing spaces etc. -->
-
-```{r simple_examples, echo= FALSE, results="hide"}
-# Creating two trajectories.
+```{r simple1, echo= FALSE, results="hide"}
+# Creating two trajectories where the first col is time steps
 path1 <- matrix(c(0, 1, 2, 3, 0, 1, 2, 3), 4)
 path2 <- matrix(c(0, 1, 2, 3, 4, 5, 6, 7), 4)
 # Running the Fréchet distance algorithm.
 Frechet(path1, path2)
+# the same as above
+Frechet(matrix(path1[,2]),matrix(path2[,2]))
 ```
 
 ```{r simple2}
@@ -135,7 +134,7 @@ hist(dmat[lower.tri(dmat)],xlab="Fréchet distance",main="",breaks=20)
 Find the [Fréchet mean](https://en.wikipedia.org/wiki/Fr%C3%A9chet_mean) (min average distance = most central point), considering the ensemble of curves to be the entire set of possibilities
 
 ```{r frechet2}
-## Fréchet mean corresponding to arith mean: minimize sum of squares of distances
+## Fréchet mean corresponding to arithmetic mean: minimize sum of squares of distances
 md2 <- rowSums(dmat^2)  
 fm2 <- which.min(md2)
 ## Fm corresponding to median: minimize sum of distances 
@@ -150,7 +149,7 @@ but the rankings for (sum of distances to all other curves) and (sum of squared 
 cor.test(md1,md2,method="spearman")$estimate
 ```
 
-Find the envelope of the most central 50% (is this right??)
+Find the envelope of trajectories with the most central 50% (is this right??)
 
 ```{r find_envelope}
 central_curves <- which(md1<quantile(md1,0.5))
@@ -170,7 +169,7 @@ matplot(x=t,y=M,type = "l", col = g_cols[1], lty=1,ylim=c(0,10))
 lines(t,rowMeans(M), col = g_cols[2], lwd = 2)
 lines(t,apply(M,1,median), col = g_cols[3], lwd = 2)
 lines(t,M[,fm1], col = g_cols[4], lwd = 2)
-polygon(c(t,rev(t)),c(fmin,rev(fmax)), col=adjustcolor("black",alpha.f=0.05),
+polygon(c(t,rev(t)),c(fmin,rev(fmax)), col=adjustcolor("black",alpha.f=0.2),
         border=NA)
 polygon(c(t,rev(t)),c(pqmin,rev(pqmax)), col=adjustcolor("green",alpha.f=0.2),
         border=NA)
@@ -180,7 +179,7 @@ legend("topright", legend = g_labels,
 
 ---
 
-The region here (which is supposed to represent the central 50% of the sample) seems a bit odd; it is much wider than the pointwise 50% range. Maybe that's as expected?
+The region here (which is supposed to represent the central 50% of the sample) seems a bit odd; the Fréchet envelope (in black) is much wider than the pointwise 50% range (in green). Maybe that's as expected?
 
 The Fréchet distance is a natural choice given that we are working with curves, but there's no reason that we have to use that distance metric: the Fréchet **mean** (and associated concepts of centrality) is (IMO) more important than the choice of distance metric. For example, we could use a Mahalanobis distance on the time points (although this doesn't include any information, e.g., about the time-ordering of the points, which seems weird?), or the Mahalanobis distance of a set of epidemiologically relevant metrics (e.g. {peak time, peak height, time to 5% of cumulative infection, epidemic duration}).
 
@@ -211,45 +210,118 @@ DTW(matrix(y1),matrix(y2))
 Consider distances via [dynamic time warping](https://en.wikipedia.org/wiki/Dynamic_time_warping), which is also implemented in `SimilarityMeasures` and might be slightly more quantitative/less "topological" than Fréchet distances? (Although Mahalanobis on probes/features also seems to make a lot of sense.)
 
 Note that in the example above, n1, any horizontal shift of curve, results in 0 Fréchet distance. 
-
 ## Mahalanobis norm 
 Mahalanobis norm can be used to determine whether a sample is an outlier, whether a process is in control or whether a sample is a member of a group or not (see [Richard G. Brereto's paper](https://onlinelibrary.wiley.com/doi/full/10.1002/cem.2692)).
 
+By definition the squared mahalanobis norm of y= (y-colMeans(y)) * sy^-1 * t((y-colMeans(y)))
 
 ```{r mahalanobis_simple_example}
-y <- cbind(y1,y2)
-sy <- cov(y)
-my <- mahalanobis(y,colMeans(y),sy)
-## By definition the squared mahalanobis norm of y= (y-colMeans(y)) * sy^-1 * t((y-colMeans(y)))   
-## TODO: check it!  
-matplot(tvec,cbind(y1,y2),type="l",col = g_cols[1], lty=1,ylim=c(0,20))
-lines(tvec,my, col = g_cols[2], lwd = 2)
-legend("topright", legend = c(g_labels[1],"mahalanobis dist"),
-       col= g_cols[1:2], lty=1, bg="white")
+## num of trajs > num of points to get cov 
+n_traj0 <- 3 ## 3 tajectories, 2 data points
+n_point0 <- 2
+traj <- matrix(NA,n_traj0,n_point0) ## trajectories are in rows
+traj[1,] <- c(0,0)
+traj[2,] <- c(1,1)
+traj[3,] <- c(0,1)
+Sigma0 <- cov(traj) ## 2by2
+
+matplot(t(traj))
+## we can take the whole traj matrix
+mahalanobis(traj,center = colMeans(traj),cov=Sigma0) ##  all identical, 
+
+## pairwise
+mahalmat0 <- matrix(NA, n_traj0, n_traj0)
+diag(mahalmat0) <- 0
+
+for (i in 1:(n_traj0-1)) {
+    for (j in (i+1):n_traj0) {
+        ## calculating pairwise M distance of both trajectories from their mean
+        ## (identical, take the first one)
+        mahalmat0[i,j] <- mahalanobis(traj[c(i,j),], #taj i and j
+                                     center=colMeans(traj[c(i,j),]),
+                                     cov=Sigma0)[1]
+    }
+}
+mahalmat0 <- make_symm(mahalmat0)
+
 ```
 
 Question: what do we mean by "Mahalanobis on probes/features"?
-
 Answer: pick a set of values ("summary statistics", "epidemiologically relevant metrics"): these could be min/max/mean/median of incidence, duration, growth rate, total number infected, ...
+
+```{r mahalanobis_probes1}
+## mahalanobis on the features, make sure the # of trajs > # of probes
+## traj is taken from above
+n_probes0 <- 2
+probes0 <- matrix(NA,n_traj0,n_probes0) 
+probes0[,1] <- apply(traj, 1, FUN = min)
+probes0[,2] <- apply(traj, 1, FUN = max)   
+
+Sigma1 <- cov(probes0) ## 2by2
+## pairwise
+mahalmat0 <- matrix(NA, n_traj0, n_traj0)
+diag(mahalmat0) <- 0
+
+for (i in 1:(n_traj0-1)) {
+    for (j in (i+1):n_traj0) {
+        ## calculating pairwise M distance of both trajectories from their mean
+        ## (identical, take the first one)
+        mahalmat0[i,j] <- mahalanobis(probes0[c(i,j),], #taj i and j
+                                     center=colMeans(probes0[c(i,j),]),
+                                     cov=Sigma0)[1]
+    }
+}
+mahalmat0 <- make_symm(mahalmat0)
+
+```
+
 
 It's harder to think about computing the *pairwise* Mahalanobis distance between the features of two curves, because we can't compute the covariance matrix for only two samples, but we can still use the covariance matrix from the entire data set as the denominator/scaling factor (this might get weird if the distribution of probes is weird, e.g. multimodal, but still usable?)
 
 Use `M` from above so we can compute $\Sigma$ (i.e. number of curves > number of time points): here we're using the actual trajectory values, *not* summary statistics:
 
 ```{r mahal2}
-Sigma <- cov(t(M)) ## covariance matrix of points
+Sigma <- cov(t(M)) ## covariance matrix of points (time)
 mahalmat <- matrix(NA, n_traj, n_traj)
 diag(mahalmat) <- 0
 for (i in 1:(n_traj-1)) {
     for (j in (i+1):n_traj) {
         ## calculating pairwise M distance of both trajectories from their mean
         ## (identical, take the first one)
-        mahalmat[i,j] <- mahalanobis(t(M[,c(i,j)]),
+        mahalmat[i,j] <- mahalanobis(t(M[,c(i,j)]), #taj i and j
                                      center=rowMeans(M[,c(i,j)]),
                                      cov=Sigma)[1]
     }
 }
 mahalmat <- make_symm(mahalmat)
+```
+
+```{r mahalanobis_probes2}
+## using t(M), as I would like to put trajs on the rows
+print(n_traj)
+n_probes1 <- 4
+probes1 <- matrix(NA,n_traj,n_probes1) 
+probes1[,1] <- apply(t(M), 1, FUN = min)
+probes1[,2] <- apply(t(M), 1, FUN = max)   
+probes1[,3] <- apply(t(M), 1, FUN = median)   
+probes1[,4] <- rowMeans(t(M))   
+
+Sigma1 <- cov(probes1)
+## pairwise
+mahalmat1 <- matrix(NA, n_traj, n_traj)
+diag(mahalmat1) <- 0
+
+for (i in 1:(n_traj-1)) {
+    for (j in (i+1):n_traj) {
+        ## calculating pairwise M distance of both trajectories from their mean
+        ## (identical, take the first one)
+        mahalmat1[i,j] <- mahalanobis(probes1[c(i,j),], #taj i and j
+                                     center=colMeans(probes1[c(i,j),]),
+                                     cov=Sigma1)[1]
+    }
+}
+mahalmat1 <- make_symm(mahalmat1)
+
 ```
 
 ## Juul et al's sample data set
