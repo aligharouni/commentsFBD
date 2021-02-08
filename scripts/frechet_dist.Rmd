@@ -215,7 +215,7 @@ Note that in the example above, n1, any horizontal shift of curve, results in 0 
 
 Mahalanobis norm can be used to determine whether a sample is an outlier, whether a process is in control or whether a sample is a member of a group or not (see [Richard G. Brereto's paper](https://onlinelibrary.wiley.com/doi/full/10.1002/cem.2692)).
 
-By definition the squared mahalanobis norm of y= (y-colMeans(y)) * sy^-1 * t((y-colMeans(y)))
+The squared Mahalanobis norm of $y$ for a given center $c$ is `(y-c) %*% sy^-1 %*% t((y-c))`
 
 ```{r mahalanobis_simple_example}
 ## num of trajs > num of points to get cov 
@@ -366,17 +366,6 @@ matplot(m,type="l",col=adjustcolor("black",alpha.f=0.2), lty=1,
 
 **conjecture**: if we have a sufficiently sensible space (metric space?), we can define the *centroid* of a set of points, which may not be a member of the set. Then for a rank $r$, the (1) set of $r$ closest points to the centroid is the same as (2) the set of $r$ points with the minimum average distance to all of the other points. ? (Right now we're using the second characteristic to define the set of central points, and we're not computing the centroid - we're computing the 'most central' point in the set [i.e. the one with minimum distance to all other points, probably == the closest to the centroid])
 
-```
-(x-c) %*% V^{-1} %*% (x-c)^T
-((x-c) %*% C^{-1}) %*% ((x-c) %*% C^{-1})^T
-```
-
-```{python py_example}
-def fun(a, b):
-    return a+b
-fun(1,2)
-```
-
 ## example
 
 One potential problem with Mahalanobis distances: if (for example) the probe distribution is
@@ -391,9 +380,6 @@ m2 <- MASS::mvrnorm(50, mu=c(-6,-6), Sigma=matrix(c(1,-0.7,-0.7,1),2))
 m <- rbind(m1,m2)
 plot(m[,1],m[,2])
 ```
-
-
-
 
 ## Reference(s)
 
