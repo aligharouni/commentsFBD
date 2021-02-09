@@ -310,8 +310,11 @@ probes1[,4] <- rowMeans(t(M))
 
 Sigma1 <- cov(probes1)
 ## pairwise
-mahalmat1 <- matrix(NA, n_traj, n_traj)
+mahalmat1 <- matrix(NA, n_traj, n_traj) ## Mahalanobis
 diag(mahalmat1) <- 0
+
+frechet1 <- matrix(NA, n_traj, n_traj) ## Frechet
+diag(frechet1) <- 0
 
 for (i in 1:(n_traj-1)) {
     for (j in (i+1):n_traj) {
@@ -320,15 +323,24 @@ for (i in 1:(n_traj-1)) {
         mahalmat1[i,j] <- mahalanobis(probes1[c(i,j),], #taj i and j
                                      center=colMeans(probes1[c(i,j),]),
                                      cov=Sigma1)[1]
+        ## Frechet
+        frechet1[i,j] <- Frechet(matrix(probes1[i,]),matrix(probes1[j,]))
     }
 }
 mahalmat1 <- make_symm(mahalmat1)
 mahaldist2 <- mahalanobis(probes1,center=colMeans(probes1),cov=Sigma1)
+
+frechet1 <- make_symm(frechet1)
+frechet2 <- apply(probes1,1,FUN=function(x){Frechet(matrix(x),matrix(colMeans(probes1)))} )
+
 ```
 
 ```{r}
 rank(rowMeans(mahalmat1))
 rank(mahaldist2)
+
+rank(rowMeans(frechet1))
+rank(frechet2)
 ```
 
 ## Juul et al's sample data set
