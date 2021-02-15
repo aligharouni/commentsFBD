@@ -22,16 +22,16 @@ the [curvestat repo](https://github.com/jonassjuul/curvestat/).
 `npy`-loading instructions  taken from [here](https://cran.r-project.org/web/packages/RcppCNPy/vignettes/UsingReticulate.pdf)
 
 ```{r get_juul}
-if (!file.exists("juul1.csv")) {
-    download.file("https://github.com/jonassjuul/curvestat/raw/master/curvestat/tests/test_data/curves_DKE3.npy", dest="juul1.npy")
+if (!file.exists("./data/juul1.csv")) {
+    download.file("https://github.com/jonassjuul/curvestat/raw/master/curvestat/tests/test_data/curves_DKE3.npy", dest="./data/juul1.npy")
     library(reticulate)
     np <- import("numpy")
-    a <- np$load("juul1.npy",allow_pickle=TRUE)[[1]]
+    a <- np$load("./data/juul1.npy",allow_pickle=TRUE)[[1]]
     m <- do.call(cbind,a)
     write.table(m,file="./data/juul1.csv",row.names=FALSE,col.names=FALSE,
                 sep=",")
 } else {
-    m <- as.matrix(read.csv("juul1.csv"))
+    m <- as.matrix(read.csv("./data/juul1.csv"))
 }
 ```
 
