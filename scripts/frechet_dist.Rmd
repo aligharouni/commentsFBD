@@ -7,6 +7,10 @@ bibliography: ../AliMac.bib
 ---
 
 
+## To do
+- maybe comment on the general problem of defining centrality in >1 dimension, e.g. @rousseeuw_bagplot_1999 ("halfspace depth"; also mentions convex hull peeling)
+
+
 ```{r setup, include=FALSE}
 ## https://stackoverflow.com/questions/55009313/how-to-use-cairo-pngs-in-r-markdown
 ## requires Cairo package ...
@@ -19,6 +23,14 @@ knitr::knit_hooks$set(basefig=function(before, options, envir) {
 
 ```
 
+## Questions
+
+0. Can we get a clearer description of how Juul's methods work/how they would fit into other definitions of centrality? (randomly sample a subset of curves; compute the min-max envelopes; score individual curves based on whether they lie entirely within the envelope or not; repeat to derive a centrality score on [0,1] for each curve based on the proportion)
+1. Do we apply measures of centrality directly to the curves or to probes derived from the curves?
+2. What measure of centrality/typical-ness do we apply?
+3. If it depends on distance, what distance do we use?
+4. Do we define centrality by difference from a central point (centroid/Fréchet mean) or by average closeness to the rest of the set? Does the answer differ depending on step 3 (choice of distance)?
+
 ```{r graph_setup, echo=FALSE}
 g_labels <- c("trajectories", "fixed-time mean",
             "fixed-time median", "Fréchet mean")
@@ -27,8 +39,8 @@ g_cols <- c("gray","blue","purple","red")
 
 ```{r packages, echo=FALSE, message=FALSE}
 library(SimilarityMeasures) ## for Fréchet distance computation
-library("reticulate") ## use_python("/usr/bin/python3")
 ```
+
 This is inspired by @juul2021fixed. 
 
 In the paper, pitfalls of fixed-time mean trajectory (the pointwise mean at each time step) are explored and an alternative curve-based method, which is based on ranking the curves and sampling, is studied.
@@ -160,14 +172,14 @@ The Fréchet distance is a natural choice given that we are working with curves,
 It would be interesting to apply this approach to @juul2021's examples. Or we could apply Juul *et al.*'s algorithms to this example.
 
 - Does our approach have any advantages other than being (apparently) better posed?
-- Does @juul2021's sampling-based approach have any theoretical justification? Does it correspond to some kind of approximation of central components as defined here? (The distance metric is certainly different ...)
+- Does @juul2021fixed's sampling-based approach have any theoretical justification? Does it correspond to some kind of approximation of central components as defined here? (The distance metric is certainly different ...)
 
 More searching for prior art: does anyone in the functional data analysis world do anything like this already? Where would we look/who would we ask? ("Fréchet" is a nice distinctive search term, but so far I have found anything directly relevant ...)
 
 AGh:[Virginia Vassilevska Williams](https://scholar.google.com/citations?hl=en&user=Wph6P_IAAAAJ&view_op=list_works&sortby=pubdate) has worked on the sequence walk problem. She has a youtube [talk](https://www.youtube.com/watch?v=XCoCiXIShyk). 
-For theoretical stuff see this paper: 
-Tight Hardness Results for LCS and Other Sequence Similarity Measures
-2015 IEEE
+For theoretical stuff see @abboud_tight_2015
+
+**BMB: I'm not sure this is relevant?**
 
 ## Playing with norms
 
@@ -317,30 +329,6 @@ rank(rowMeans(frechet1))
 rank(frechet2)
 ```
 
-
-
-## mahalanobis measure
-
-```{r mahalanobis_example}
-
-```
-
-**conjecture**: if we have a sufficiently sensible space (metric space?), we can define the *centroid* of a set of points, which may not be a member of the set. Then for a rank $r$, the (1) set of $r$ closest points to the centroid is the same as (2) the set of $r$ points with the minimum average distance to all of the other points. ? (Right now we're using the second characteristic to define the set of central points, and we're not computing the centroid - we're computing the 'most central' point in the set [i.e. the one with minimum distance to all other points, probably == the closest to the centroid])
-
-## example
-
-One potential problem with Mahalanobis distances: if (for example) the probe distribution is
-strongly bimodal, then scaling factors/correlations derived from the overall data set may
-not be appropriate for scaling the components of distance between two trajectories whose features
-put them in the same mode/component of the distribution ...
-
-```{r bimodal}
-set.seed(101)
-m1 <- MASS::mvrnorm(50, mu=c(6,6), Sigma=matrix(c(1,-0.7,-0.7,1),2))
-m2 <- MASS::mvrnorm(50, mu=c(-6,-6), Sigma=matrix(c(1,-0.7,-0.7,1),2))
-m <- rbind(m1,m2)
-plot(m[,1],m[,2])
-```
 
 ## Reference(s)
 
