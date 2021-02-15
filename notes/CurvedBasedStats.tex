@@ -1,0 +1,76 @@
+\documentclass[12pt]{article}
+\usepackage{natbib}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{amssymb,amsmath,amsthm}
+\usepackage{xcolor}
+\usepackage{xspace}
+\usepackage[nameinlink,capitalize]{cleveref}
+\usepackage{cleveref}
+\usepackage[margin=1in]{geometry}
+\usepackage{lineno}\renewcommand\thelinenumber{\color{gray}\arabic{linenumber}}
+\usepackage{pdflscape}
+\usepackage{xspace}
+\usepackage{array}
+
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+\newcommand{\comment}{\showcomment}
+\newcommand{\showcomment}[3]{\textcolor{#1}{\textbf{[#2: }\textsl{#3}\textbf{]}}}
+\newcommand{\nocomment}[3]{}
+
+\newcommand{\ali}[1]{\comment{magenta}{Ali}{#1}}
+\newcommand{\bmb}[1]{\comment{red}{BMB}{#1}}
+\newcommand{\todo}[1]{\comment{red}{TODO}{#1}}
+
+\theoremstyle{definition} % amsthm only
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+
+\bibliographystyle{apalike}
+
+\title{Centrality: A Curved-Based Statistical Discription of an Ensemble}
+\author{Ali Gharouni, Ben Bolker}
+\begin{document}
+\maketitle
+\linenumbers
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+
+\bibliography{../CentLib}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Appendix}
+
+\subsection{Literature Review}
+\citep{juul2021fixed}
+
+\subsection{emails}
+
+{\bf Ben,  
+date: Feb 9, 2021}
+
+There are several somewhat orthogonal questions, all geared to the general question of "what is a sensible way to define a confidence interval or 'typical' set of curves out of an ensemble?
+
+ 1. Do we apply measures of centrality directly to the curves or to
+probes derived from the curves?
+ 2.  What measure of centrality/typical-ness do we apply?
+ 3.  If it depends on distance, what distance do we use?
+ 4. Do we define centrality by difference from a central point
+(centroid/Fréchet mean) or by average closeness to the rest of the
+set? Does the answer differ depending on step 3 (choice of distance)?
+
+(And finally: how do Juul et al's methods fit into this?)
+
+Another email the same day:
+you might be able to show that the conjecture does *not* hold for some fairly simple distance metric (e.g. log(Euclidean) or some similar kind of geometric-mean distance), in which case it would also settle most of the question.
+
+
+
+
+
+\end{document}

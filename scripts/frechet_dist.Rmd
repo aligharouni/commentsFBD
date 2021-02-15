@@ -3,35 +3,9 @@ title: "Fréchet distance between curves and curve-based descriptive statistics"
 author: "Ali Gharouni and Ben Bolker"
 date: "`r format(Sys.time(),'%d %b %Y')`"
 output: html_document
-references:
-- id: juul2021
-  author:
-  - family: Juul
-    given: Jonas L.
-  - family: Græsbøll
-    given: Kaare
-  - family: Christiansen
-    given: Lasse Engbo
-  - family: Lehmann
-    given: Sune
-  container-title: Nature Physics
-  DOI: 10.1038/s41567-020-01121-y
-  ISSN: 1745-2481
-  issue: '1'
-  language: en
-  page: 5-8
-  source: www.nature.com
-  title: Fixed-time descriptive statistics underestimate extremes of epidemic curve
-    ensembles
-  URL: https://www.nature.com/articles/s41567-020-01121-y
-  volume: '17'
-  issued:
-    date-parts:
-    - - '2021'
-      - 1
+bibliography: ../AliMac.bib
 ---
 
-<!-- In order to keep this self-contained, YAML header includes a single reference (exported from Zotero in JSON format, then used an online JSON-to-YAML convertor <https://www.json2yaml.com/>; for more references it would be better to use a separate .bib file -->
 
 ```{r setup, include=FALSE}
 ## https://stackoverflow.com/questions/55009313/how-to-use-cairo-pngs-in-r-markdown
@@ -55,7 +29,7 @@ g_cols <- c("gray","blue","purple","red")
 library(SimilarityMeasures) ## for Fréchet distance computation
 library("reticulate") ## use_python("/usr/bin/python3")
 ```
-This is inspired by @juul2021. 
+This is inspired by @juul2021fixed. 
 
 In the paper, pitfalls of fixed-time mean trajectory (the pointwise mean at each time step) are explored and an alternative curve-based method, which is based on ranking the curves and sampling, is studied.
 
@@ -343,32 +317,7 @@ rank(rowMeans(frechet1))
 rank(frechet2)
 ```
 
-## Juul et al's sample data set
 
-Retrieving and unpacking the simulated epidemic curves from
-the [curvestat repo](https://github.com/jonassjuul/curvestat/).
-
-`npy`-loading instructions  taken from [here](https://cran.r-project.org/web/packages/RcppCNPy/vignettes/UsingReticulate.pdf)
-
-```{r get_juul}
-if (!file.exists("juul1.csv")) {
-    download.file("https://github.com/jonassjuul/curvestat/raw/master/curvestat/tests/test_data/curves_DKE3.npy", dest="juul1.npy")
-    library(reticulate)
-    np <- import("numpy")
-    a <- np$load("juul1.npy",allow_pickle=TRUE)[[1]]
-    m <- do.call(cbind,a)
-    write.table(m,file="juul1.csv",row.names=FALSE,col.names=FALSE,
-                sep=",")
-} else {
-    m <- as.matrix(read.csv("juul1.csv"))
-}
-```
-
-```{r plot_juul}
-par(las=1,bty="l")
-matplot(m,type="l",col=adjustcolor("black",alpha.f=0.2), lty=1,
-        ylab="")
-```
 
 ## mahalanobis measure
 

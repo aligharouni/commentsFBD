@@ -1,0 +1,74 @@
+---
+title: "conj_example"
+author: "Ali"
+date: "`r format(Sys.time(),'%d %b %Y')`"
+output: html_document
+bibliography: ../AliMac.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r source}
+source('functions.R')
+```
+
+## conjecture
+
+```{r conjecture}
+
+```
+
+
+```{r counter_eg}
+## set of points
+x <- c(1:3)
+n <- length(x)
+
+## Euclidean norm, where 
+mat1  <- as.matrix(dist(as.matrix(x), method = "euclidean", diag = TRUE, upper = TRUE))
+eucl1 <- colMeans(mat1)
+
+eucl2 <- apply(as.matrix(x),1,FUN=function(y){dist(c(y,mean(x)))} )
+
+rank(eucl1)
+rank(eucl2)
+
+```
+
+## Lon Euclidean Norm; the case that the conjecture is not hold
+
+Following @arsigny2006log, the definition of log Euclidean norm is understood for Real numbers as follows. 
+
+```{r logeuclid}
+ x <- c(1:10)
+ n<- length(x)
+mat<- matrix(NA,n,n)
+
+diag(mat)<-0 
+
+for (i in 1:(n-1) ){
+  for(j in (i+1):n){
+      mat[i,j] <- logedu(x[i],x[j])
+  }
+}
+
+mat <- make_symm(mat)
+y1 <- colMeans(mat)
+rank(y1)
+  
+m <- mean(x)
+y2 <- apply(matrix(x),1,FUN=function(y){logedu(y,m)})
+rank(y2) 
+```
+
+
+
+# References
+
+
+
+
+
