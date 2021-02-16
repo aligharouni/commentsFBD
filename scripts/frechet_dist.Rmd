@@ -169,7 +169,7 @@ The region here (which is supposed to represent the central 50% of the sample) s
 
 The Fréchet distance is a natural choice given that we are working with curves, but there's no reason that we have to use that distance metric: the Fréchet **mean** (and associated concepts of centrality) is (IMO) more important than the choice of distance metric. For example, we could use a Mahalanobis distance on the time points (although this doesn't include any information, e.g., about the time-ordering of the points, which seems weird?), or the Mahalanobis distance of a set of epidemiologically relevant metrics (e.g. {peak time, peak height, time to 5% of cumulative infection, epidemic duration}).
 
-It would be interesting to apply this approach to @juul2021's examples. Or we could apply Juul *et al.*'s algorithms to this example.
+It would be interesting to apply this approach to @juul2021fixed's examples. Or we could apply Juul *et al.*'s algorithms to this example.
 
 - Does our approach have any advantages other than being (apparently) better posed?
 - Does @juul2021fixed's sampling-based approach have any theoretical justification? Does it correspond to some kind of approximation of central components as defined here? (The distance metric is certainly different ...)
@@ -177,7 +177,7 @@ It would be interesting to apply this approach to @juul2021's examples. Or we co
 More searching for prior art: does anyone in the functional data analysis world do anything like this already? Where would we look/who would we ask? ("Fréchet" is a nice distinctive search term, but so far I have found anything directly relevant ...)
 
 AGh:[Virginia Vassilevska Williams](https://scholar.google.com/citations?hl=en&user=Wph6P_IAAAAJ&view_op=list_works&sortby=pubdate) has worked on the sequence walk problem. She has a youtube [talk](https://www.youtube.com/watch?v=XCoCiXIShyk). 
-For theoretical stuff see @abboud_tight_2015
+For theoretical stuff see @abboud2015tight
 
 **BMB: I'm not sure this is relevant?**
 
