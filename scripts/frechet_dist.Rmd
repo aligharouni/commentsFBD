@@ -6,11 +6,6 @@ output: html_document
 bibliography: ../AliMac.bib
 ---
 
-
-## To do
-- maybe comment on the general problem of defining centrality in >1 dimension, e.g. @rousseeuw_bagplot_1999 ("halfspace depth"; also mentions convex hull peeling)
-
-
 ```{r setup, include=FALSE}
 ## https://stackoverflow.com/questions/55009313/how-to-use-cairo-pngs-in-r-markdown
 ## requires Cairo package ...
