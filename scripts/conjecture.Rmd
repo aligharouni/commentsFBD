@@ -59,7 +59,7 @@ rank(eucl2)
 Following @arsigny2006log, the definition of log Euclidean norm is understood for Real numbers as follows. 
 
 ```{r logeuclid}
- x <- c(1:10)
+x <- 1:10
  n<- length(x)
 mat<- matrix(NA,n,n)
 
@@ -75,9 +75,14 @@ mat <- make_symm(mat)
 y1 <- colMeans(mat)
 rank(y1)
   
-m <- mean(x)
-y2 <- apply(matrix(x),1,FUN=function(y){logedu(y,m)})
-rank(y2) 
+ m <- mean(x)
+ y2 <- apply(matrix(x),1,FUN=function(y){logedu(y,m)})
+ rank(y2)
+
+
+par(mfrow=c(1,2),las=1,bty="l")
+plot(y1,y2,xlab="mean pairwise dist",ylab="dist to centroid")
+plot(rank(y1),rank(y2),xlab="mean pairwise dist",ylab="dist to centroid")
 ```
 
 
