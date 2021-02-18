@@ -41,6 +41,18 @@ matplot(m,type="l",col=adjustcolor("black",alpha.f=0.2), lty=1,
         ylab="")
 ```
 
+```{r install_curvestat}
+library(reticulate)
+# create a new environment 
+conda_create("r-reticulate")
+# install curvestat
+conda_install("r-reticulate", "curvestat")
+
+curvestat <- import("curvestat")
+```
+
+
+
 # References
 
 
