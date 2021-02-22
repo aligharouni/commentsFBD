@@ -14,11 +14,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ##setwd("~/projects/AliMac_scripts/scripts/")
 library("reticulate") ## use_python("/usr/bin/python3")
 library(SimilarityMeasures) ## for Fréchet distance computation
-
 ```
 
 
 ## Juul et al's sample data set
+
 This is inspired by @juul2021fixed. 
 Retrieving and unpacking the simulated epidemic curves from
 the [curvestat repo](https://github.com/jonassjuul/curvestat/).
@@ -45,7 +45,7 @@ matplot(m,type="l",col=adjustcolor("black",alpha.f=0.2), lty=1,
         ylab="")
 ```
 
-```{r frechet_dist}
+```{r frechet_dist, eval=FALSE}
 n_traj <- ncol(m)
 dmat <- matrix(NA, n_traj, n_traj)
 diag(dmat) <- 0
@@ -69,7 +69,9 @@ library(reticulate)
 ## ~/Downloads$ sudo apt-get install python3-pip
 ## clone the curvestats in projects dir
 ## pip3 install curvestat
-py_install("curvestat")
+while (!py_module_available("curvestat")) {
+    py_install("../curvestat",pip=TRUE)
+}
 ## create a new environment 
 ## conda_create("r-reticulate")
 ## install curvestat
@@ -77,6 +79,10 @@ py_install("curvestat")
 ## curvestat <- import("curvestat")
 ```
 
+```{python}
+from curvestat import CurveBoxPlot
+from curvestat import LoadRisk
+```
 
 
 # References
