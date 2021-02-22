@@ -69,7 +69,7 @@ library(reticulate)
 ## ~/Downloads$ sudo apt-get install python3-pip
 ## clone the curvestats in projects dir
 ## pip3 install curvestat
-py_install("curvestat")
+py_install("curvestat",pip=TRUE)
 ## create a new environment 
 ## conda_create("r-reticulate")
 ## install curvestat
