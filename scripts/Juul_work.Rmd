@@ -9,8 +9,12 @@ bibliography: ../AliMac.bib
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 ```{r packages, echo=FALSE, message=FALSE}
+##setwd("~/projects/AliMac_scripts/scripts/")
 library("reticulate") ## use_python("/usr/bin/python3")
+library(SimilarityMeasures) ## for Fréchet distance computation
+
 ```
 
 
@@ -31,7 +35,7 @@ if (!file.exists("./data/juul1.csv")) {
     write.table(m,file="./data/juul1.csv",row.names=FALSE,col.names=FALSE,
                 sep=",")
 } else {
-    m <- as.matrix(read.csv("./data/juul1.csv"))
+    m <- as.matrix(read.csv("./data/juul1.csv")) ## the columns are the trajs
 }
 ```
 
@@ -41,14 +45,36 @@ matplot(m,type="l",col=adjustcolor("black",alpha.f=0.2), lty=1,
         ylab="")
 ```
 
+```{r frechet_dist}
+n_traj <- ncol(m)
+dmat <- matrix(NA, n_traj, n_traj)
+diag(dmat) <- 0
+for (i in 1:(n_traj-1)) {
+    for (j in (i+1):n_traj) {
+        dmat[i,j] <- Frechet(matrix(m[,i]),matrix(m[,j]))
+    }
+}
+
+dmat <- make_symm(dmat)
+stopifnot(isSymmetric(dmat))
+
+
+
+```
+
+
+
 ```{r install_curvestat}
 library(reticulate)
-# create a new environment 
-conda_create("r-reticulate")
-# install curvestat
-conda_install("r-reticulate", "curvestat")
-
-curvestat <- import("curvestat")
+## ~/Downloads$ sudo apt-get install python3-pip
+## clone the curvestats in projects dir
+## pip3 install curvestat
+py_install("curvestat")
+## create a new environment 
+## conda_create("r-reticulate")
+## install curvestat
+## conda_install("r-reticulate", "curvestat")
+## curvestat <- import("curvestat")
 ```
 
 

@@ -34,6 +34,7 @@ g_cols <- c("gray","blue","purple","red")
 
 ```{r packages, echo=FALSE, message=FALSE}
 library(SimilarityMeasures) ## for Fréchet distance computation
+source('functions.R')
 ```
 
 This is inspired by @juul2021fixed. 
@@ -97,12 +98,7 @@ for (i in 1:(n_traj-1)) {
         dmat[i,j] <- Frechet(matrix(M[,i]),matrix(M[,j]))
     }
 }
-## symmetrize (is there something built-in? Matrix::forceSymmetric
-##  converts to a fancy Matrix object ...
-make_symm <- function(x) {
-    x[lower.tri(x)] <- t(x)[lower.tri(x)]
-    return(x)
-}
+
 dmat <- make_symm(dmat)
 stopifnot(isSymmetric(dmat))
 ```
