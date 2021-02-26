@@ -46,32 +46,36 @@ matplot(m,type="l",col=adjustcolor("black",alpha.f=0.2), lty=1,
 ```
 
 ```{r frechet_dist, eval=FALSE}
+m <- m[,1:10]
 n_traj <- ncol(m)
 dmat_fr <- matrix(NA, n_traj, n_traj) ## Frechete
-dmat_DTW <- matrix(NA, n_traj, n_traj) ## DTW
+# dmat_DTW <- matrix(NA, n_traj, n_traj) ## DTW
 diag(dmat_fr) <- 0
-diag(dmat_DTW) <- 0
+# diag(dmat_DTW) <- 0
 
-system.time(
-for (i in 1:(n_traj-1)) {
-    for (j in (i+1):n_traj) {
-        dmat_fr[i,j] <- Frechet(matrix(m[,i]),matrix(m[,j]))
-        dmat_DTW[i,j] <- DTW(matrix(m[,i]),matrix(m[,j]))
-    }
-}
+# system.time(
+# for (i in 1:(n_traj-1)) {
+#     for (j in (i+1):n_traj) {
+#         dmat_fr[i,j] <- Frechet(matrix(m[,i]),matrix(m[,j]))
+#         dmat_DTW[i,j] <- DTW(matrix(m[,i]),matrix(m[,j]))
+#     }
+# }
+# 
+# )
 
-)
+traj_list <- sapply(1:(n_traj-1),FUN=function(i) subset.matrix(m,select = c(i:n_traj)))
+system.time(out_traj_list <- sapply(traj_list,dtraj))
 
-dmat_fr <- make_symm(dmat_fr)
-stopifnot(isSymmetric(dmat_fr))
-
-dmat_DTW <- make_symm(dmat_DTW)
-stopifnot(isSymmetric(dmat_DTW))
-
-write.table(dmat_fr,"./data/dmat_frechet.csv",sep=",",row.names = F,
-                 col.names = F)
-write.table(dmat_DTW,"./data/dmat_DTW.csv",sep=",",row.names = F,
-                 col.names = F)
+# dmat_fr <- make_symm(dmat_fr)
+# stopifnot(isSymmetric(dmat_fr))
+# 
+# dmat_DTW <- make_symm(dmat_DTW)
+# stopifnot(isSymmetric(dmat_DTW))
+# 
+# write.table(dmat_fr,"./data/dmat_frechet.csv",sep=",",row.names = F,
+#                  col.names = F)
+# write.table(dmat_DTW,"./data/dmat_DTW.csv",sep=",",row.names = F,
+#                  col.names = F)
 
 ```
 

@@ -18,7 +18,15 @@ logedu <- function(x,y){
 } 
 
 ## pairwise distance
-## to do
+## to do pass the distance function such as Frechet, DTW, etc
+
+## dtraj: Calculate all of the pairwise distances between first traj (col1) and all others 
+dtraj <- function(submatrix){
+  ## compare the first column with the other columns
+  out <- apply(as.matrix(submatrix[,-1]),2,FUN=function(x) SimilarityMeasures::Frechet(subset.matrix(submatrix,select = 1),matrix(x)) )
+  return(out)
+}
+
 
 
 
