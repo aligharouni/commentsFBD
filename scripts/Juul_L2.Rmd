@@ -29,20 +29,23 @@ matplot(M,type="l",col=adjustcolor("black",alpha.f=0.2), lty=1,
         ylab="")
 ```
 
-```{r pointwiseL2, eval=FALSE}
+```{r pointwiseL2}
 n_traj <- ncol(M)
 t <- 1:nrow(M)
-# dmatl2 <- matrix(NA, n_traj, n_traj) ## Euclidean L2 norm
-# system.time(
-# dmatl2 <- as.matrix(dist(t(M), method = "euclidean", diag = TRUE, upper = TRUE, p = 2))
-# )
-## write.table(dmat_l2,"./data/dmat_juul_l2.csv",sep=",",row.names = FALSE, col.names = FALSE)
 
-```
+if (!file.exists("./data/dmat_juul_l2.csv")) {
+dmatl2 <- matrix(NA, n_traj, n_traj) ## Euclidean L2 norm
+system.time(
+dmatl2 <- as.matrix(dist(t(M), method = "euclidean", diag = TRUE, upper = TRUE, p = 2))
+)
+write.table(dmat_l2,"./data/dmat_juul_l2.csv",sep=",",row.names = FALSE, col.names = FALSE)
+} else {
+   dmatl2 <- as.matrix(read_csv("./data/dmat_juul_l2.csv", col_names = FALSE)) 
+}
 
-```{r read}
-dmatl2 <- as.matrix(read_csv("./data/dmat_juul_l2.csv", col_names = FALSE))
 # stopifnot(isSymmetric(dmatl2)) ## gives error! wonder why?
+
+
 ```
 
 ```{r l2mean_median}
