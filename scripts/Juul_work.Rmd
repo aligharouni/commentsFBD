@@ -7,7 +7,8 @@ bibliography: ../AliMac.bib
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+## echo=TRUE is the default
+knitr::opts_chunk$set(dev.args = list(png = list(type = "cairo")))
 ```
 
 ```{r packages, echo=FALSE, message=FALSE}
@@ -48,22 +49,22 @@ matplot(m,type="l",col=adjustcolor("black",alpha.f=0.2), lty=1,
 ```{r frechet_dist, eval=FALSE}
 ## m <- m[,1:10]
 n_traj <- ncol(m)
-dmat_fr <- matrix(NA, n_traj, n_traj) ## Frechete
+dmat_fr <- matrix(NA, n_traj, n_traj) ## Frechet
 diag(dmat_fr) <- 0
 
-traj_list <- sapply(1:(n_traj-1),FUN=function(i) subset.matrix(m,select = c(i:n_traj)))
+traj_list <- sapply(1:(n_traj-1), FUN=function(i) subset.matrix(m,select = c(i:n_traj)))
 system.time(out_traj_list <- sapply(traj_list,dtraj))
 
 dmat_fr <- matrix(NA, n_traj, n_traj) ## distance matrix for Frechet dist
 diag(dmat_fr) <- 0
 ## put the list on the dist matrix rows
- for(i in 1:(n_traj-1)){
+ for(i in 1:(n_traj-1)) {
    dmat_fr[i,(i+1):n_traj] <- out_traj_list[[i]]
  }
 
 dmat_fr <- make_symm(dmat_fr)
 stopifnot(isSymmetric(dmat_fr))
-write.table(dmat_fr,"./data/dmat_juul_frechet.csv",sep=",",row.names = F, col.names = F)
+write.table(dmat_fr,"./data/dmat_juul_frechet.csv",sep=",",row.names = FALSE, col.names = FALSE)
 
 ## Do the same for DTW
 # dmat_DTW <- make_symm(dmat_DTW)
