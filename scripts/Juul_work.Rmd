@@ -47,6 +47,8 @@ matplot(m,type="l",col=adjustcolor("black",alpha.f=0.2), lty=1,
         ylab="")
 ```
 
+
+
 ```{r frechet_dist, eval=FALSE}
 m <- m[,1:10] ## a pilot test for the first 10 trajs
 n_traj <- ncol(m)

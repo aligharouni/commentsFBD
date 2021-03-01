@@ -1,0 +1,91 @@
+---
+title: "Juul_work_euclidean"
+author: "Ali"
+date: "01/03/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(dev.args = list(png = list(type = "cairo")))
+```
+
+```{r graph_setup, echo=FALSE}
+g_labels <- c("trajectories", "fixed-time mean",
+            "fixed-time median", "L2 mean")
+g_cols <- c("gray","blue","purple","red")
+```
+
+```{r packages, echo=FALSE, message=FALSE}
+library(tidyverse) 
+```
+
+## Pointwise L2 Norm
+
+```{r plot_juul}
+M <- (read_csv("./data/juul1.csv", col_names = FALSE)) ## the columns are the trajs
+
+par(las=1,bty="l")
+matplot(M,type="l",col=adjustcolor("black",alpha.f=0.2), lty=1,
+        ylab="")
+```
+
+```{r pointwiseL2, eval=FALSE}
+n_traj <- ncol(M)
+t <- 1:nrow(M)
+# dmatl2 <- matrix(NA, n_traj, n_traj) ## Euclidean L2 norm
+# system.time(
+# dmatl2 <- as.matrix(dist(t(M), method = "euclidean", diag = TRUE, upper = TRUE, p = 2))
+# )
+## write.table(dmat_l2,"./data/dmat_juul_l2.csv",sep=",",row.names = FALSE, col.names = FALSE)
+
+```
+
+```{r read}
+dmatl2 <- as.matrix(read_csv("./data/dmat_juul_l2.csv", col_names = FALSE))
+# stopifnot(isSymmetric(dmatl2)) ## gives error! wonder why?
+```
+
+```{r l2mean_median}
+## l2 mean corresponding to arithmetic mean: minimize sum of squares of distances
+md2 <- rowSums(dmatl2^2)  
+l2_m2 <- which.min(md2)
+## corresponding to median: minimize sum of distances 
+md1 <- rowSums(dmatl2)
+l2_m1 <- which.min(md1)
+```
+```{r l2cor}
+cor.test(md1,md2,method="spearman")$estimate
+```
+
+Find the envelope of trajectories with the most central 50% (is this right??)
+
+```{r find_envelope}
+central_curves <- which(md1<quantile(md1,0.5))
+## POINTWISE min/max of these curves (?)
+fmin <- apply(M[,central_curves],1,min)
+fmax <- apply(M[,central_curves],1,max)
+```
+
+Compute pointwise central 50% quantiles for comparison:
+```{r pointquant}
+pqmin <- apply(M,1,quantile,0.25)
+pqmax <- apply(M,1,quantile,0.75)
+```
+
+```{r plot_all,basefig=TRUE,fig.cap="fixed-time and l2 metrics: gray (wide)=50% central l2 region, green (narrow)=fixed-time central region"}
+matplot(x=t,y=M,type = "l", col = g_cols[1], lty=1,ylim=c(0,800))
+lines(t,rowMeans(M), col = g_cols[2], lwd = 2)
+lines(t,apply(M,1,median), col = g_cols[3], lwd = 2)
+lines(t,pull(M,l2_m1), col = g_cols[4], lwd = 2)
+polygon(c(t,rev(t)),c(fmin,rev(fmax)), col=adjustcolor("black",alpha.f=0.2),
+        border=NA)
+polygon(c(t,rev(t)),c(pqmin,rev(pqmax)), col=adjustcolor("green",alpha.f=0.2),
+        border=NA)
+legend("topright", legend = g_labels,
+       col= g_cols, lty=1, bg="white")       
+```
+
+
+
+
+
