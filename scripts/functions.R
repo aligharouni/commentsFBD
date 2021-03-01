@@ -30,3 +30,5 @@ dtraj <- function(submatrix){
 
 
 
+
+
