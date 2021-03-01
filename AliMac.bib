@@ -51,3 +51,73 @@
 }
 
 
+@article{marron_functional_2015,
+	title = {Functional {Data} {Analysis} of {Amplitude} and {Phase} {Variation}},
+	volume = {30},
+	issn = {0883-4237},
+	url = {http://arxiv.org/abs/1512.03216},
+	doi = {10.1214/15-STS524},
+	abstract = {The abundance of functional observations in scientiﬁc endeavors has led to a signiﬁcant development in tools for functional data analysis (FDA). This kind of data comes with several challenges: inﬁnite-dimensionality of function spaces, observation noise, and so on. However, there is another interesting phenomena that creates problems in FDA. The functional data often comes with lateral displacements/deformations in curves, a phenomenon which is diﬀerent from the height or amplitude variability and is termed phase variation. The presence of phase variability artiﬁcially often inﬂates data variance, blurs underlying data structures, and distorts principal components. While the separation and/or removal of phase from amplitude data is desirable, this is a diﬃcult problem. In particular, a commonly used alignment procedure, based on minimizing the L2 norm between functions, does not provide satisfactory results. In this paper we motivate the importance of dealing with the phase variability and summarize several current ideas for separating phase and amplitude components. These approaches diﬀer in the following: (1) the deﬁnition and mathematical representation of phase variability, (2) the objective functions that are used in functional data alignment, and (3) the algorithmic tools for solving estimation/optimization problems. We use simple examples to illustrate various approaches and to provide useful contrast between them.},
+	language = {en},
+	number = {4},
+	urldate = {2021-03-01},
+	journal = {Statistical Science},
+	author = {Marron, J. S. and Ramsay, James O. and Sangalli, Laura M. and Srivastava, Anuj},
+	month = nov,
+	year = {2015},
+	note = {arXiv: 1512.03216},
+	keywords = {Statistics - Methodology},
+	pages = {468--484},
+	doi = {10.1214/15-STS524}
+}
+
+@article{tucker_generative_2013,
+	title = {Generative models for functional data using phase and amplitude separation},
+	volume = {61},
+	issn = {0167-9473},
+	url = {https://www.sciencedirect.com/science/article/pii/S0167947312004227},
+	doi = {10.1016/j.csda.2012.12.001},
+	abstract = {Constructing generative models for functional observations is an important task in statistical functional analysis. In general, functional data contains both phase (or x or horizontal) and amplitude (or y or vertical) variability. Traditional methods often ignore the phase variability and focus solely on the amplitude variation, using cross-sectional techniques such as fPCA for dimensional reduction and data modeling. Ignoring phase variability leads to a loss of structure in the data and inefficiency in data models. This paper presents an approach that relies on separating the phase (x-axis) and amplitude (y-axis), then modeling these components using joint distributions. This separation, in turn, is performed using a technique called elastic shape analysis of curves that involves a new mathematical representation of functional data. Then, using individual fPCAs, one each for phase and amplitude components, it imposes joint probability models on principal coefficients of these components while respecting the nonlinear geometry of the phase representation space. These ideas are demonstrated using random sampling, for models estimated from simulated and real datasets, and show their superiority over models that ignore phase-amplitude separation. Furthermore, the generative models are applied to classification of functional data and achieve high performance in applications involving SONAR signals of underwater objects, handwritten signatures, and periodic body movements recorded by smart phones.},
+	language = {en},
+	urldate = {2021-03-01},
+	journal = {Computational Statistics \& Data Analysis},
+	author = {Tucker, J. Derek and Wu, Wei and Srivastava, Anuj},
+	month = may,
+	year = {2013},
+	keywords = {Amplitude variability, Function alignment, Function principal component analysis, Functional data analysis, Generative model, Phase variability},
+	pages = {50--66}
+}
+
+@article{sun_functional_2011,
+	title = {Functional {Boxplots}},
+	volume = {20},
+	issn = {1061-8600},
+	url = {https://doi.org/10.1198/jcgs.2011.09224},
+	doi = {10.1198/jcgs.2011.09224},
+	abstract = {This article proposes an informative exploratory tool, the functional boxplot, for visualizing functional data, as well as its generalization, the enhanced functional boxplot. Based on the center outward ordering induced by band depth for functional data, the descriptive statistics of a functional boxplot are: the envelope of the 50\% central region, the median curve, and the maximum non-outlying envelope. In addition, outliers can be detected in a functional boxplot by the 1.5 times the 50\% central region empirical rule, analogous to the rule for classical boxplots. The construction of a functional boxplot is illustrated on a series of sea surface temperatures related to the El Niño phenomenon and its outlier detection performance is explored by simulations. As applications, the functional boxplot and enhanced functional boxplot are demonstrated on children growth data and spatio-temporal U.S. precipitation data for nine climatic regions, respectively. This article has supplementary material online.},
+	number = {2},
+	urldate = {2021-03-01},
+	journal = {Journal of Computational and Graphical Statistics},
+	author = {Sun, Ying and Genton, Marc G.},
+	month = jan,
+	year = {2011},
+	doi = {10.1198/jcgs.2011.09224},
+	keywords = {Depth, Functional data, Growth data, Precipitation data, Space–time data, Visualization},
+	pages = {316--334}
+}
+
+@article{lopez-pintado_concept_2009,
+	title = {On the {Concept} of {Depth} for {Functional} {Data}},
+	volume = {104},
+	issn = {0162-1459},
+	url = {https://amstat.tandfonline.com/doi/abs/10.1198/jasa.2009.0108},
+	doi = {10.1198/jasa.2009.0108},
+	abstract = {The statistical analysis of functional data is a growing need in many research areas. In particular, a robust methodology is important to study curves, which are the output of many experiments in applied statistics. As a starting point for this robust analysis, we propose, analyze, and apply a new definition of depth for functional observations based on the graphic representation of the curves. Given a collection of functions, it establishes the “centrality” of an observation and provides a natural center-outward ordering of the sample curves. Robust statistics, such as the median function or a trimmed mean function, can be defined from this depth definition. Its finite-dimensional version provides a new depth for multivariate data that is computationally feasible and useful for studying high-dimensional observations. Thus, this new depth is also suitable for complex observations such as microarray data, images, and those arising in some recent marketing and financial studies. Natural properties of these new concepts are established and the uniform consistency of the sample depth is proved. Simulation results show that the corresponding depth based trimmed mean presents better performance than other possible location estimators proposed in the literature for some contaminated models. Data depth can be also used to screen for outliers. The ability of the new notions of depth to detect “shape” outliers is presented. Several real datasets are considered to illustrate this new concept of depth, including applications to microarray observations, weather data, and growth curves. Finally, through this depth, we generalize to functions the Wilcoxon rank sum test. It allows testing whether two groups of curves come from the same population. This functional rank test when applied to children growth curves shows different growth patterns for boys and girls.},
+	number = {486},
+	urldate = {2021-03-01},
+	journal = {Journal of the American Statistical Association},
+	author = {López-Pintado, Sara and Romo, Juan},
+	month = jun,
+	year = {2009},
+	pages = {718--734}
+}
