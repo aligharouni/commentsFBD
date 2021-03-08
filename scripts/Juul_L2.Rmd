@@ -43,7 +43,7 @@ write.table(dmat_l2,"./data/dmat_juul_l2.csv",sep=",",row.names = FALSE, col.nam
    dmatl2 <- as.matrix(read_csv("./data/dmat_juul_l2.csv", col_names = FALSE)) 
 }
 
-# stopifnot(isSymmetric(dmatl2)) ## gives error! wonder why?
+## stopifnot(isSymmetric(dmatl2)) ## gives error! wonder why?
 
 
 ```
@@ -88,6 +88,20 @@ legend("topright", legend = g_labels,
        col= g_cols, lty=1, bg="white")       
 ```
 
+## Functional Boxplots
+
+Ref [fda](https://www.rdocumentation.org/packages/fda/versions/5.1.9/topics/fbplot)
+
+```{r fbplot}
+library("fda")
+library("roahd")
+
+str(t)
+str(M)
+fD <- fData(t,as.matrix(t(M))) ## note that the trajs are on rows in fD object
+fbplot(fD,method='MBD', plot=TRUE ) ## if plot=false, it outputs the calculations and scores
+
+```
 
 
 

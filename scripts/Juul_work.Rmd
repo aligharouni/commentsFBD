@@ -7,7 +7,6 @@ bibliography: ../AliMac.bib
 ---
 
 ```{r setup, include=FALSE}
-## echo=TRUE is the default
 knitr::opts_chunk$set(dev.args = list(png = list(type = "cairo")))
 ```
 

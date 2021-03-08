@@ -182,6 +182,13 @@ matplot(tvec,cbind(y1,y2),type="l")
 max(abs(y1-y2))
 Frechet(matrix(y1),matrix(y2))
 DTW(matrix(y1),matrix(y2), pointSpacing=0)
+## functional data Ana
+library("fda")
+library("roahd")
+
+fD_temp <- fData(tvec,as.matrix(rbind(y1,y2) )) ## note that the trajs are on rows in fD object
+fbplot(fD_temp,method='MBD') ## plot the central envelope
+
 ```
 
 Consider distances via [dynamic time warping](https://en.wikipedia.org/wiki/Dynamic_time_warping), which is also implemented in `SimilarityMeasures` and might be slightly more quantitative/less "topological" than Fréchet distances? (Although Mahalanobis on probes/features also seems to make a lot of sense.)

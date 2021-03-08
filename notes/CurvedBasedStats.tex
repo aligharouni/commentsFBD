@@ -41,11 +41,35 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 
-\bibliography{../CentLib}
+
+\bibliography{../AliMac}
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Appendix}
 
+\subsection{Vision}
+
+Goal: 
+ How to compare Juul's result to ours, quantitative/visual? the point is that in addition to the option that Juul et al gave, here we present other options and you should think about which ones have the properties that you want.
+ 
+What to be presented? 
+- maybe 4 panels, here is what you get by various methods. Each panel have several quantile overlaid (50,80,90) 1 Juul's work, 1 mahalonobis on the probes,  
+
+Notes:
+1) The central region (not the curve) is to be focussed on. (spend a paragrapgh) 
+
+2) What did Juul do? Algorithm? 
+Out of the whole surves, refered as the whole ensumble, pick a random subensumble, consider the pointwise min and max which determines the envelope. $E_{sample}$ is the envelope of the sample, assign a score to each curve in the ensumble, all scores starts with 0 if the curve is not in the envelope, they add $s(c_i)$ but we think the default is constant 1, then you can weight it in some way. 
+
+Juul's concept of centrality goes back to a 2009 paper \cite{lopez2009concept}, recommending of sampling 3 curves at a time (ckeck?). 
+- Where Juul's method comes from?
+- How depth handles phase variation?
+- Searach for functional band depth in R, check fbplot in fda package \url{https://www.rdocumentation.org/packages/fda/versions/5.1.9/topics/fbplot} how to specify the size of subensumble.
+- check also \cite{sun2012exact}
+
+- This implies that the centrality score cannot be lower than the resampled proportion. 
+That is, if the size of a subensumble is $p\%$ of the whole ensemble, any curve in the subensumble will have score of 1 at least $p\%$ of the time but the centrality score cannot be less that $p$. Specifically, each curve in the whole ensumble has a $p\%$ chance to be picked in the subensumble, thus be in the envelope, so the centrality score cannot be less than the size of the subensumble.     
+- Is there a upper bound? We are not sure. Thinking about a straight line with other curves are curved up or down etc.
 \subsection{Literature Review}
 \citep{juul2021fixed}
 
@@ -68,7 +92,6 @@ set? Does the answer differ depending on step 3 (choice of distance)?
 
 Another email the same day:
 you might be able to show that the conjecture does *not* hold for some fairly simple distance metric (e.g. log(Euclidean) or some similar kind of geometric-mean distance), in which case it would also settle most of the question.
-
 
 
 
