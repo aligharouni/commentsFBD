@@ -21,7 +21,7 @@ library(tidyverse)
 
 ## Pointwise L2 Norm
 
-```{r plot_juul}
+```{r plot_juul, message=FALSE}
 M <- (read_csv("./data/juul1.csv", col_names = FALSE)) ## the columns are the trajs
 
 par(las=1,bty="l")
@@ -92,17 +92,14 @@ legend("topright", legend = g_labels,
 
 Ref [fda](https://www.rdocumentation.org/packages/fda/versions/5.1.9/topics/fbplot)
 
-```{r fbplot}
+```{r fbplot,warning=FALSE}
 library("fda")
 library("roahd")
 
-str(t)
-str(M)
+## str(t)
+## str(M)
 fD <- fData(t,as.matrix(t(M))) ## note that the trajs are on rows in fD object
-fbplot(fD,method='MBD', plot=TRUE ) ## if plot=false, it outputs the calculations and scores
-
+ff <- fbplot(fD,method='MBD', plot=TRUE ) ## if plot=false, it outputs the calculations and scores
 ```
 
-
-
-
+Functional depth calculators in `ddalpha`, `rainbox` ... but existing band depth computations probably all use $J=2$, we may need to write our own for $J>2$.
