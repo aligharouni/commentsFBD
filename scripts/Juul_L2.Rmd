@@ -99,7 +99,11 @@ library("roahd")
 ## str(t)
 ## str(M)
 fD <- fData(t,as.matrix(t(M))) ## note that the trajs are on rows in fD object
-ff <- fbplot(fD,method='MBD', plot=TRUE ) ## if plot=false, it outputs the calculations and scores
+ff <- fbplot(fD,method='MBD', plot=TRUE,
+             outliercol = 2, 
+             fullout = TRUE,
+             main = list( 'fbplot()') ) ## if plot=false, it outputs the calculations and scores
+
 ```
 
 Functional depth calculators in `ddalpha`, `rainbox` ... but existing band depth computations probably all use $J=2$, we may need to write our own for $J>2$.
