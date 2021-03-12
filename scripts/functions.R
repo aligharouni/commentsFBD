@@ -30,12 +30,25 @@ dtraj <- function(submatrix){
 ##########################################
 ## FUNCTIONs FOR REPLICATING JUUL'S WORK
 ##########################################
+## output a list of envelopes (pointwise min-max) of a subensemble 
+EnvOut <- function(ensemble,subEnsMat){
+  ##ensemble: the whole ensemble, set of curves, with the curves on columns 
+  ##subEnsMat: subensemble matrix with the (i,j) element as i'th sample & j'th curve of the ensemble
+  envelopes <- vector(mode="list",length = nrow(subEnsMat)) ## initializing
+  for(i in 1:(nrow(subEnsMat))){
+    subens <- ensemble[,subEnsMat[i,]]
+    pmin_subens <- apply(subens, 1, FUN=min)
+    pmax_subens <- apply(subens, 1, FUN=max)
+    envelopes[[i]] <- cbind(pmin_subens,pmax_subens) ## temporary envelope
+  }
+  return(envelopes)
+}
 
 ## A  function to determine whether the curves of an ensemble fall entirely in an envelope: 
-IsInEnv <- function(ensemble,envelop){
+IsInEnv <- function(ensemble,envelope){
   ## isinenv() returns  a logi vector; TRUE if the input curve is entirely inside the envelope.
   ## the envelope is an n by 2 matrix, determining the lower/upper bounds of an envelope. 
-  o <- apply(ensemble,2,FUN = function(traj){traj >= envelop[,1] && traj <= envelop[,2]})
+  o <- apply(ensemble,2,FUN = function(traj){traj >= envelope[,1] && traj <= envelope[,2]})
   return(o)
 }
 
@@ -50,19 +63,9 @@ RnkEns <- function(ensemble,envelope,weight=0){
   return(rank)
 }
 
-## output envelopes (pointwise min-max) of a subensemble 
-EnvOut <- function(ensemble,subEnsMat){
-  ##ensemble: the whole ensemble, set of curves, with the curves on columns 
-  ##subEnsMat: subensemble matrix with the (i,j) element as i'th sample & j'th curve of the ensemble
-  envelopes <- vector(mode="list",length = nrow(subEnsMat)) ## initializing
-  for(i in 1:(nrow(subEnsMat))){
-    subens <- ensemble[,subEnsMat[i,]]
-    pmin_subens <- apply(subens, 1, FUN=min)
-    pmax_subens <- apply(subens, 1, FUN=max)
-    envelopes[[i]] <- cbind(pmin_subens,pmax_subens) ## temporary envelope
-  }
-  return(envelopes)
-}
+lapply(Envlist,FUN= function(envelope_in)RnkEns(ensemble,envelope_in,weight=0))
+
+
 ##########################################
 
 
