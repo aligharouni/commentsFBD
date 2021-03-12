@@ -1,4 +1,5 @@
-
+# setwd("/home/ag/projects/AliMac_scripts/scripts/")
+source('functions.R')
 ###################################
 ## Juul's work
 ###################################
