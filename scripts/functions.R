@@ -48,21 +48,23 @@ EnvOut <- function(ensemble,subEnsMat){
 IsInEnv <- function(ensemble,envelope){
   ## isinenv() returns  a logi vector; TRUE if the input curve is entirely inside the envelope.
   ## the envelope is a n by 2 matrix, determining the lower/upper bounds of an envelope. 
-  o <- apply(ensemble,2,FUN = function(traj){traj >= envelope[,1] && traj <= envelope[,2]})
+    ## o <- apply(ensemble,2,FUN = function(traj){traj >= envelope[,1] && traj <= envelope[,2]})
+  o <- apply(ensemble,2,FUN = function(traj){ all(traj >= envelope[,1] & traj <= envelope[,2]) } )
   return(o)
 }
 
 ## rank the curves in an ensemble based on the whether it is in an subensemble
-RnkEns_1sample <- function(ensemble,envelope,weight=0){
+RnkEns_1sample <- function(ensemble,envelope) {
   ## ensemble: matrix of whole ensemble with curves on the column
   ## envelope: list of envelopes corresponding to each subensemble
-  ## weight: initial rank assigned to each curve in the ensemble
-  inc <- 1 # increase the rank of a curve by inc (increment) if it is outside of the evelope
-  nTrajs <- ncol(ensemble) ## number of trajectories in the ensemble 
-  rank <- replicate(nTrajs,weight) ## initialize the ranks of the ensemble
+  ## could calculate a weighted value instead?
+  ## would need to add weights back in
+  ## this is inverted from Juul et al.; they compute a 'centrality score', i.e.
+  ##  curves that fall within the envelope get 1, outside -> 0
+  ## if we want to extend to weights we may need to match their definitions  
   fall <- IsInEnv(ensemble,envelope)
-  rank <- ifelse(fall,weight,weight+inc)
-  return(rank)
+  return(ifelse(fall,0,1))
+  ## or: ifelse(IsInEnv(ensemble,envelope),0,1)
 }
 
 ## take the ensemble, sample from it and call it subensemble, create the envelope of the subensemble (i.e., pointwise min-max), rank the curves in the ensemble (rank=1 if a curve is entirely in the envelope and 0 otherwise), for each sample store the ranks in a row of matrix "EnsRank" 
@@ -86,10 +88,9 @@ EnsRank_all <- function(ensemble,numSample,sizeSample){
   ## initialize the rank matrix, EnsRank(i,j): rank of j'th curve of the ensemble wrt i'the envelope (subensemble or sample)
   EnsRank <- matrix(NA,nrow = numSample,ncol = ncol(ensemble)) 
   ## Rank the ensemble across all subensembles
-  temp <- lapply(Envlist,FUN= function(envelope_in)RnkEns_1sample(ensemble,envelope_in,weight=0))
+  temp <- lapply(Envlist,FUN=function(envelope_in) RnkEns_1sample(ensemble,envelope_in))
   ## save as a matrix
   EnsRank <- matrix(unlist(temp),nrow = numSample,byrow = TRUE)
-  rm("temp")
   return(list(sampMat=smat,ensembRank=EnsRank))
 }
 

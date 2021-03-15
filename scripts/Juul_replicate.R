@@ -1,5 +1,7 @@
 # setwd("/home/ag/projects/AliMac_scripts/scripts/")
 source('functions.R')
+library(readr)
+
 ###################################
 ## Juul's work
 ###################################
@@ -16,9 +18,9 @@ EnRkTemp_J <- EnsRank_all(ensemble_J,numSample=100,sizeSample=50) ## sizeSample=
 rnkmat <- EnRkTemp_J[["ensembRank"]] ## rank mat
 
 barplot(colSums(rnkmat)) 
-md1 <- rank(colSums(rnkmat))
-
-central_curves <- which(md1<=quantile(md1,0.5)) ## Question: md1<?
+md1 <- rank(colSums(rnkmat)) ## , ties="random")
+plot(sort(md1))
+central_curves <- which(md1<quantile(md1,0.5)) ## Question: md1<?
 
 ## central envelope, ie POINTWISE min/max of these curves
 fmin <- apply(ensemble_J[,central_curves],1,min)
@@ -29,7 +31,8 @@ g_labels <- c("trajectories", "fixed-time mean",
               "fixed-time median", "Juul central")
 g_cols <- c("gray","blue","purple","red")
 
-matplot(x=tvec,y=ensemble_J,type = "l", col = g_cols[1], lty=1,ylim=c(0,800))
+par(las=1, bty="l")
+matplot(x=tvec,y=ensemble_J,type = "l", col = g_cols[1], lty=1,ylim=c(0,820))
 lines(tvec,rowMeans(ensemble_J), col = g_cols[2], lwd = 2)
 lines(tvec,apply(ensemble_J,1,median), col = g_cols[3], lwd = 2)
 polygon(c(tvec,rev(tvec)),c(fmin,rev(fmax)), col=adjustcolor("black",alpha.f=0.2),
@@ -37,6 +40,5 @@ polygon(c(tvec,rev(tvec)),c(fmin,rev(fmax)), col=adjustcolor("black",alpha.f=0.2
 legend("topright", legend = g_labels,
        col= g_cols, lty=1, bg="white") 
 
-
-
-
+mpt <- t(apply(ensemble_J,1,quantile, c(0.25,0.75)))
+-matlines(mpt,col="black",lty=2,lwd=2)
