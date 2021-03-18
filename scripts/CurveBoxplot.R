@@ -4,6 +4,8 @@ source('functions.R')
 library(tidyverse)
 library(readr)
 
+g_labels <- c("trajectories", "fixed-time 25th-75th percentiles")
+g_cols <- c("gray","black")
 ###################################
 ## Juul's work replicating panel b;
 ###################################
@@ -40,9 +42,22 @@ central_curves_l2 <- which(md1l2<quantile(md1l2,0.5))
 fminl2 <- apply(ensemble_J[,central_curves_l2],1,min)
 fmaxl2 <- apply(ensemble_J[,central_curves_l2],1,max)
 
+par(las=1, bty="l")
+matplot(x=tvec,y=ensemble_J,type = "l", col = g_cols[1], lty=1,
+        ylim=c(0,820),
+        main = "Curve boxplot L2 norm",
+        xlab = "Day",
+        ylab = "Newly hospitalized"
+)
 
+polygon(c(tvec,rev(tvec)),c(fminl2,rev(fmaxl2)), col=adjustcolor("blue",alpha.f=0.2),border=NA)
+legend("topleft", legend = g_labels,
+       col= g_cols, lty=1, bg="white", cex=0.6, bty='n') 
+mpt <- t(apply(ensemble_J,1,quantile, c(0.25,0.75)))
+matlines(mpt,col="black",lty=1,lwd=2)
 
-
-
+###################################
+## Functional Boxplots (FDA) on Juul's data
+###################################
 
 
