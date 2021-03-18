@@ -167,11 +167,6 @@ It would be interesting to apply this approach to @juul2021fixed's examples. Or 
 
 More searching for prior art: does anyone in the functional data analysis world do anything like this already? Where would we look/who would we ask? ("Fréchet" is a nice distinctive search term, but so far I have found anything directly relevant ...)
 
-AGh:[Virginia Vassilevska Williams](https://scholar.google.com/citations?hl=en&user=Wph6P_IAAAAJ&view_op=list_works&sortby=pubdate) has worked on the sequence walk problem. She has a youtube [talk](https://www.youtube.com/watch?v=XCoCiXIShyk). 
-For theoretical stuff see @abboud2015tight
-
-**BMB: I'm not sure this is relevant?**
-
 ## Playing with norms
 
 ```{r n1}
