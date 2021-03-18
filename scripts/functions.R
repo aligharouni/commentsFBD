@@ -9,8 +9,8 @@ make_symm <- function(x){
   return(x)
 }
 
-## Definition of log Euclidean norm in R following the 
-## paper: arsigny2006log
+## Definition of log Euclidean norm in R following this paper: arsigny2006log
+## For the purpose of disproving our conjecture about the central curve.
 logedu <- function(x,y){
   if(x<=0 | y<=0) return(NA)
   else
@@ -32,8 +32,9 @@ dtraj <- function(submatrix){
 ##########################################
 ## output a list of envelopes (pointwise min-max) of a subensemble 
 EnvOut <- function(ensemble,subEnsMat){
-  ##ensemble: the whole ensemble, set of curves, with the curves on columns 
-  ##subEnsMat: subensemble matrix with the (i,j) element as i'th sample & j'th curve of the ensemble
+  ## ensemble: the whole ensemble, set of curves, with the curves on columns 
+  ## We sample n times from the ensemble and the info of all samples are stored in subEnsMat as follows.  
+  ## subEnsMat: subensemble matrix with the (i,j) element as i'th sample & j'th curve of the ensemble
   envelopes <- vector(mode="list",length = nrow(subEnsMat)) ## initializing
   for(i in 1:(nrow(subEnsMat))){
     subens <- ensemble[,subEnsMat[i,]]
@@ -44,10 +45,10 @@ EnvOut <- function(ensemble,subEnsMat){
   return(envelopes)
 }
 
-## A  function to determine whether the curves of an ensemble fall entirely in an envelope: 
+## A  function to determine whether the curves of an ensemble fall entirely in an given envelope: 
 IsInEnv <- function(ensemble,envelope){
   ## isinenv() returns  a logi vector; TRUE if the input curve is entirely inside the envelope.
-  ## the envelope is a n by 2 matrix, determining the lower/upper bounds of an envelope. 
+  ## the envelope is a n by 2 matrix, determining the lower bound (envelope[,1]) and the upper bound (envelope[,2]) of an envelope. 
     ## o <- apply(ensemble,2,FUN = function(traj){traj >= envelope[,1] && traj <= envelope[,2]})
   o <- apply(ensemble,2,FUN = function(traj){ all(traj >= envelope[,1] & traj <= envelope[,2]) } )
   return(o)
@@ -59,24 +60,22 @@ RnkEns_1sample <- function(ensemble,envelope) {
   ## envelope: list of envelopes corresponding to each subensemble
   ## could calculate a weighted value instead?
   ## would need to add weights back in
-  ## this is inverted from Juul et al.; they compute a 'centrality score', i.e.
+  ## Juul et al.; they compute a 'centrality score', i.e.
   ##  curves that fall within the envelope get 1, outside -> 0
-  ## if we want to extend to weights we may need to match their definitions  
   fall <- IsInEnv(ensemble,envelope)
-  return(ifelse(fall,0,1))
-  ## or: ifelse(IsInEnv(ensemble,envelope),0,1)
-}
+  return(ifelse(fall,1,0))
+  }
 
 ## take the ensemble, sample from it and call it subensemble, create the envelope of the subensemble (i.e., pointwise min-max), rank the curves in the ensemble (rank=1 if a curve is entirely in the envelope and 0 otherwise), for each sample store the ranks in a row of matrix "EnsRank" 
 EnsRank_all <- function(ensemble,numSample,sizeSample){
-  ##Inputs: 
-  ##ensemble: matrix of whole ensemble with curves on the column.
-  ##numSample: number of sampling from the ensemble, integer. 
-  ##sizeSample: sample size (must be >=2), i.e., how many curve to be sampled in each draw, integer.
-  ##Output: 
-  ##matrix EnsRank, with EnsRank(i,j): rank of j'th curve of the ensemble wrt i'the envelope (subensemble or sample)
+  ## Inputs: 
+  ## ensemble: matrix of whole ensemble with curves on the column.
+  ## numSample: number of sampling from the ensemble, integer. 
+  ## sizeSample: sample size (must be >=2), i.e., how many curve to be sampled in each draw, integer.
+  ## Output: 
+  ## matrix EnsRank, with EnsRank(i,j): rank of j'th curve of the ensemble wrt i'the envelope (subensemble or sample)
   nTrajs <- ncol(ensemble)
-  ##form the matrix of samples
+  ## form the matrix of samples
   smat <- t(replicate(numSample,sample(1:ncol(ensemble), sizeSample, replace=FALSE)) )
   ## Allocate a list of envelopes for each subensemble
   Envlist <- vector(mode="list",length = numSample)
@@ -89,7 +88,7 @@ EnsRank_all <- function(ensemble,numSample,sizeSample){
   EnsRank <- matrix(NA,nrow = numSample,ncol = ncol(ensemble)) 
   ## Rank the ensemble across all subensembles
   temp <- lapply(Envlist,FUN=function(envelope_in) RnkEns_1sample(ensemble,envelope_in))
-  ## save as a matrix
+  ## output a list of sample matrix (smat) and ranks
   EnsRank <- matrix(unlist(temp),nrow = numSample,byrow = TRUE)
   return(list(sampMat=smat,ensembRank=EnsRank))
 }
