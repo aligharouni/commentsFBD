@@ -302,8 +302,8 @@ for (i in 1:(n_traj-1)) {
         mahalmat1[i,j] <- mahalanobis(probes1[c(i,j),], #taj i and j
                                      center=colMeans(probes1[c(i,j),]),
                                      cov=Sigma1)[1]
-        ## Frechet
-        frechet1[i,j] <- Frechet(matrix(probes1[i,]),matrix(probes1[j,]))
+        # ## Frechet
+        # frechet1[i,j] <- Frechet(matrix(probes1[i,]),matrix(probes1[j,]))
     }
 }
 mahalmat1 <- make_symm(mahalmat1)

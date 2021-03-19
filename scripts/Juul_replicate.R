@@ -48,6 +48,9 @@ legend("topleft", legend = g_labels,
 
 mpt <- t(apply(ensemble_J,1,quantile, c(0.25,0.75)))
 matlines(mpt,col="black",lty=1,lwd=2)
+
+
+
 # Note: A test run can be found at sandbox/pre_Juul_replicate.R
 
 
