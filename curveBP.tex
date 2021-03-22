@@ -32,7 +32,7 @@
  
 \bibliographystyle{apalike}
 
-\title{Centrality: A Curved-Based Statistical Discription of an Ensemble}
+\title{Centrality: A Curve-Based Statistical Discription of an Ensemble}
 \author{Ali Gharouni, Ben Bolker}
 \begin{document}
 \maketitle
@@ -41,12 +41,41 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 
+\cite{juul2021fixed} presented a useful curve-based alternative to the fixed-time statistics. 
+They cautioned that standard pointwise (fixed-time) averages may not be appropriate to summerize ensembles of epidemic curves. Particularly, miscapturing a key feature such as peak numbers of infections which may result in obscuring the forcast process has been discussed.
+
+\section{Results}
+
+\begin{figure}[h!]
+\centering
+\begin{subfigure}[t]{.45\textwidth}
+\centering
+\includegraphics[width=\linewidth]{scripts/pix/fig2b_juul.pdf}
+\caption{}\label{p.a}
+\end{subfigure}
+%
+\begin{subfigure}[t]{.45\textwidth}
+\centering
+\includegraphics[width=\linewidth]{scripts/pix/fbplot_juul.pdf}
+\caption{}\label{p.b}
+\end{subfigure}
+%
+\begin{subfigure}[t]{.45\textwidth}
+\centering
+\includegraphics[width=\linewidth]{scripts/pix/L2_juul.pdf}
+\caption{}\label{p.b}
+\end{subfigure}
+%
+\begin{subfigure}[t]{.45\textwidth}
+\centering
+\includegraphics[width=\linewidth]{scripts/pix/mahal_probes_juul.pdf}
+\caption{}\label{p.b}
+\end{subfigure}
+\caption{Other options of curve-based statistics on Juul's et al work}
+\label{pan}
+\end{figure}
+
+
 
 \bibliography{./AliMac}
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Appendix}
-
-
-
-
 \end{document}

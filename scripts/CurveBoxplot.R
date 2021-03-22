@@ -1,8 +1,8 @@
 
-
 source('functions.R')
 library(tidyverse)
 library(readr)
+library(latex2exp)
 
 g_labels <- c("trajectories", "fixed-time 25th-75th percentiles")
 g_cols <- c("gray","black")
@@ -45,7 +45,7 @@ fmaxl2 <- apply(ensemble_J[,central_curves_l2],1,max)
 par(las=1, bty="l")
 matplot(x=tvec,y=ensemble_J,type = "l", col = g_cols[1], lty=1,
         ylim=c(0,820),
-        main = "Curve boxplot L2 norm",
+        main = TeX("Curve boxplot with $L_2$ norm"),
         xlab = "Day",
         ylab = "Newly hospitalized"
 )
@@ -65,7 +65,7 @@ library("fda")
 library("roahd")
 
 fD <- fData(tvec,as.matrix(t(ensemble_J))) ## note that the trajs are on rows in fD object
-dev.new()
+# dev.new()
 ff <- fbplot(fD,method='MBD', plot=TRUE,
              outliercol = 2, 
              fullout = FALSE,
@@ -75,9 +75,6 @@ ff <- fbplot(fD,method='MBD', plot=TRUE,
              ylab = "Newly hospitalized" 
              ) 
 ## if plot=false, it outputs the calculations and scores
-
-
-
 
 
 ###################################
@@ -122,7 +119,7 @@ fmax_mah <- apply(as.matrix(ensemble_J[,central_curves_mah]),1,max)
 par(las=1, bty="l")
 matplot(x=tvec,y=ensemble_J,type = "l", col = g_cols[1], lty=1,
         ylim=c(0,820),
-        main = "Mahalanobis on the probes",
+        main = "Mahalanobis norm on the probes",
         xlab = "Day",
         ylab = "Newly hospitalized"
 )
