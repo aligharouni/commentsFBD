@@ -1,17 +1,43 @@
 
 source('functions.R')
 library(tidyverse)
-library(readr)
 library(latex2exp)
+library(fda)
+library(roahd)
 
-g_labels <- c("trajectories", "fixed-time 25th-75th percentiles")
-g_cols <- c("gray","black")
+envelope_list <- list()
+
+
 ###################################
 ## Juul's work replicating panel b;
 ###################################
 ## upload Fig.2 ensemble  
-ensemble_J <- (read_csv("./data/juul1.csv", col_names = FALSE)) ## the columns are the trajs
-tvec <- seq(0,nrow(ensemble_J)-1) ## time domain
+ensemble_J <- read_csv("./data/juul1.csv", col_names = FALSE) ## the columns are the trajs
+tvec <- seq(nrow(ensemble_J))-1 ## time domain
+
+get_envelope <- function(ensemble, indices) {
+    data.frame(tvec=seq(nrow(ensemble))-1,
+               lwr=apply(ensemble[,indices],1,min),
+               upr=apply(ensemble[,indices],1,max))
+}
+
+
+###################################
+## Juul et al., Fig. 2 panel b; 
+## the centrality of curves was ranked in different ways: all-or-nothing ranking for the full predicted time interval, Ncurves = 50 and Nsamples = 100
+###################################
+set.seed(1234)
+EnRkTemp_J <- EnsRank_all(ensemble_J,numSample=100,sizeSample=50) ##  as Juul's et al did.
+##saveRDS(EnRkTemp_J, file = "Juul_replicate.rds")
+
+rnkmat <- EnRkTemp_J[["ensembRank"]] ## take the resulted rank mat
+
+md1 <- rank(colSums(rnkmat)) ## , ties="random")
+plot(sort(md1)) ## Note the discontinuity!?
+central_curves <- which(md1>quantile(md1,0.5))
+
+envelope_list <- c(envelope_list,
+                   list(juul=get_envelope(ensemble_J, central_curves)))
 
 ###################################
 ## Pointwise L2 Norm on Juul's data
@@ -35,38 +61,23 @@ m1l2 <- which.min(md1l2)
 ## Correlated mean and median?
 cor.test(md1l2,md2l2,method="spearman")$estimate
 
-plot(sort(md1))
-
 central_curves_l2 <- which(md1l2<quantile(md1l2,0.5))
-## Find the envelope, i.e., the POINTWISE min/max of the central curves 
-fminl2 <- apply(ensemble_J[,central_curves_l2],1,min)
-fmaxl2 <- apply(ensemble_J[,central_curves_l2],1,max)
+## Find the envelope, i.e., the POINTWISE min/max of the central curves
 
-par(las=1, bty="l")
-matplot(x=tvec,y=ensemble_J,type = "l", col = g_cols[1], lty=1,
-        ylim=c(0,820),
-        main = TeX("Curve boxplot with $L_2$ norm"),
-        xlab = "Day",
-        ylab = "Newly hospitalized"
-)
 
-polygon(c(tvec,rev(tvec)),c(fminl2,rev(fmaxl2)), col=adjustcolor("blue",alpha.f=0.2),border=NA)
-legend("topleft", legend = g_labels,
-       col= g_cols, lty=1, bg="white", cex=0.6, bty='n') 
-mpt <- t(apply(ensemble_J,1,quantile, c(0.25,0.75)))
-matlines(mpt,col="black",lty=1,lwd=2)
+envelope_list <- c(envelope_list,
+                   list(L2norm=get_envelope(ensemble_J, central_curves_l2)))
 
 ###################################
 ## Functional Boxplot (FDA) on Juul's data
 ###################################
+
 ## I think this is similar to Juul's et al. method but instead the sample size is 2 at each draw 
 ## Data depth is a well-known and useful nonparametric tool for analyzing functional data. It provides a novel way of ranking a sample of curves from the center outwards and defining robust statistics, such as the median or trimmed means.
-library("fda")
-library("roahd")
 
 fD <- fData(tvec,as.matrix(t(ensemble_J))) ## note that the trajs are on rows in fD object
 # dev.new()
-ff <- fbplot(fD,method='MBD', plot=TRUE,
+ff <- fbplot(fD,method='MBD', plot=FALSE,
              outliercol = 2, 
              fullout = FALSE,
              outline=FALSE,
@@ -76,11 +87,12 @@ ff <- fbplot(fD,method='MBD', plot=TRUE,
              ) 
 ## if plot=false, it outputs the calculations and scores
 
+envelope_list <- c(envelope_list,
+                   list(fda=get_envelope(ensemble_J, ff$Depth>median(ff$Depth))))
 
 ###################################
-## mahalanobison probes on Juul's data
+## Mahalanobis probes on Juul's data
 ###################################
-class(ensemble_J)
 
 n_probes <- 4
 # probes.fun <- function(x) {
@@ -112,24 +124,15 @@ mahalmat <- make_symm(mahalmat)
 md_mah <- rank(rowMeans(mahalmat))
 central_curves_mah <- which(md_mah<quantile(md_mah,0.5))
 
-## central envelope, ie POINTWISE min & max of these curves
-fmin_mah <- apply(ensemble_J[,central_curves_mah],1,min)
-fmax_mah <- apply(as.matrix(ensemble_J[,central_curves_mah]),1,max)
-
-par(las=1, bty="l")
-matplot(x=tvec,y=ensemble_J,type = "l", col = g_cols[1], lty=1,
-        ylim=c(0,820),
-        main = "Mahalanobis norm on the probes",
-        xlab = "Day",
-        ylab = "Newly hospitalized"
-)
-polygon(c(tvec,rev(tvec)),c(fmin_mah,rev(fmax_mah)), col=adjustcolor("blue",alpha.f=0.2),
-        border=NA)
-legend("topleft", legend = g_labels,
-       col= g_cols, lty=1, bg="white", cex=0.6, bty='n') 
-
-mpt <- t(apply(ensemble_J,1,quantile, c(0.25,0.75)))
-matlines(mpt,col="black",lty=1,lwd=2)
+envelope_list <- c(envelope_list,
+                   list(mahal=get_envelope(ensemble_J, central_curves_mah)))
 
 
+envdat <- dplyr::bind_rows(envelope_list, .id="method")
 
+long_ensemble <- ensemble_J %>% as.matrix() %>% reshape2::melt() %>%
+    rename(tvec="Var1",grp="Var2") %>% mutate(across(tvec, ~.-1))
+
+theme_set(theme_bw())
+ggplot(envdat, aes(tvec)) + geom_ribbon(aes(ymin=lwr,ymax=upr),colour=NA, alpha=0.4, fill="blue") +
+    facet_wrap(~method) + geom_line(data=long_ensemble, aes(y=value,group=grp), alpha=0.05)
