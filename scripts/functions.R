@@ -27,6 +27,12 @@ dtraj <- function(submatrix){
   return(out)
 }
 
+get_envelope <- function(ensemble, indices) {
+  data.frame(tvec=seq(nrow(ensemble))-1,
+             lwr=apply(ensemble[,indices],1,min),
+             upr=apply(ensemble[,indices],1,max))
+}
+
 ##########################################
 ## FUNCTIONs FOR REPLICATING JUUL'S WORK
 ##########################################
@@ -94,7 +100,22 @@ EnsRank_all <- function(ensemble,numSample,sizeSample){
 }
 
 ##########################################
+## Probes FUNCTIONs
+##########################################
 
+## epidemic duration (e.g. time between 10% and 90% cumulative cases)
+epi_du <- function(curve){
+  q <- quantile(cumsum(curve),c(0.1,0.9))
+  return(q[["90%"]]-q[["10%"]])
+}
 
-
+probes <- function(x) {
+  ## x is a vector
+  c(min = min(x), 
+    peak = max(x), 
+    peak_time=which.max(x), ## return the index of the first max it hits. Q: what to do with multiple peaks?
+    mean = mean(x), 
+    epi_duration = epi_du(x)
+  )
+}
 

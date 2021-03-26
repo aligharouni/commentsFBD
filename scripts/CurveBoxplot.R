@@ -1,3 +1,7 @@
+## Dr. Ben Bolker and Ali Gharouni
+## Spring 2021, UNiversity of McMaster
+## Comparison of Juul's work with alternative centrality scoring of an epidemic ensemble.
+## We used L2 norm, FBP and Mahalonobis on probes.
 
 source('functions.R')
 library(tidyverse)
@@ -5,8 +9,8 @@ library(latex2exp)
 library(fda)
 library(roahd)
 
-envelope_list <- list()
-
+## Placeholder to save the method specific envelopes including Juul's work, L2, FBP, Mahalonobis on probes.
+envelope_list <- list()  
 
 ###################################
 ## Juul's work replicating panel b;
@@ -14,13 +18,7 @@ envelope_list <- list()
 ## upload Fig.2 ensemble  
 ensemble_J <- read_csv("./data/juul1.csv", col_names = FALSE) ## the columns are the trajs
 tvec <- seq(nrow(ensemble_J))-1 ## time domain
-
-get_envelope <- function(ensemble, indices) {
-    data.frame(tvec=seq(nrow(ensemble))-1,
-               lwr=apply(ensemble[,indices],1,min),
-               upr=apply(ensemble[,indices],1,max))
-}
-
+n_traj <- ncol(ensemble_J)
 
 ###################################
 ## Juul et al., Fig. 2 panel b; 
@@ -44,9 +42,6 @@ envelope_list <- c(envelope_list,
 ###################################
 ## The distance between 2 curves is the area between them
 
-n_traj <- ncol(ensemble_J)
-t <- 1:nrow(ensemble_J)
-
 ## Memory allocation for distance matrix
 dmatl2 <- matrix(NA, n_traj, n_traj) ## Euclidean L2 norm
 dmatl2 <- as.matrix(dist(t(ensemble_J), method = "euclidean", upper = TRUE, p = 2))
@@ -64,7 +59,6 @@ cor.test(md1l2,md2l2,method="spearman")$estimate
 central_curves_l2 <- which(md1l2<quantile(md1l2,0.5))
 ## Find the envelope, i.e., the POINTWISE min/max of the central curves
 
-
 envelope_list <- c(envelope_list,
                    list(L2norm=get_envelope(ensemble_J, central_curves_l2)))
 
@@ -72,7 +66,7 @@ envelope_list <- c(envelope_list,
 ## Functional Boxplot (FDA) on Juul's data
 ###################################
 
-## I think this is similar to Juul's et al. method but instead the sample size is 2 at each draw 
+## This is similar to Juul's et al. method but instead the sample size is 2 at each draw 
 ## Data depth is a well-known and useful nonparametric tool for analyzing functional data. It provides a novel way of ranking a sample of curves from the center outwards and defining robust statistics, such as the median or trimmed means.
 
 fD <- fData(tvec,as.matrix(t(ensemble_J))) ## note that the trajs are on rows in fD object
@@ -94,19 +88,10 @@ envelope_list <- c(envelope_list,
 ## Mahalanobis probes on Juul's data
 ###################################
 
-n_probes <- 4
-# probes.fun <- function(x) {
-#   return(c(min = min(x), mean = median(x), max = max(x), curvemean=rowMeans(x)))
-# }
+probes_mat <-t(apply(ensemble_J,2, probes))
+# probes <- t(probes_mat)
 
-probes <- matrix(NA,n_traj,n_probes) 
-probes[,1] <- apply(t(ensemble_J), 1, FUN = min)
-probes[,2] <- apply(t(ensemble_J), 1, FUN = max)   
-probes[,3] <- apply(t(ensemble_J), 1, FUN = median)   
-probes[,4] <- rowMeans(t(ensemble_J))
-
-
-Sigma <- cov(probes)
+Sigma <- cov(probes_mat)
 mahalmat <- matrix(NA, n_traj, n_traj)
 diag(mahalmat) <- 0
 
@@ -114,8 +99,8 @@ for (i in 1:(n_traj-1)) {
   for (j in (i+1):n_traj) {
     ## calculating pairwise M distance of both trajectories from their mean
     ## (identical, take the first one)
-    mahalmat[i,j] <- mahalanobis(probes[c(i,j),], #taj i and j
-                                  center=colMeans(probes[c(i,j),]),
+    mahalmat[i,j] <- mahalanobis(probes_mat[c(i,j),], #taj i and j
+                                  center=colMeans(probes_mat[c(i,j),]),
                                   cov=Sigma)[1]
   }
 }
