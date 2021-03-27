@@ -27,6 +27,19 @@ epi_du.test <- function(curve){
 
 epi_du.test(y_temp)
 
+t <- 0:100 
+curve <- exp(t)
+## estimating r (epidemic initial growth rate) will fit a exponential to a curve between t0 and t1 time interval
+growth_rate.test <- function(curve,t){
+  t0 <-t[1]
+  t1 <-t[2]
+  dat <- data.frame(y=curve[t0:t1], time=seq(0,t1-t0))
+  m <- lm(log(y)~time,data=dat)
+  r <- coef(m)[2]
+  return(r)
+}
+
+growth_rate.test(curve,c(1,50))
 
 ## example 2, implementation of probes on an ensemble (matrix with curves on columns)
 tvec <- seq(0,10,length=11)
@@ -35,8 +48,9 @@ y1 <- replicate(length(tvec),1)
 y2 <- replicate(length(tvec),2)
 ens_temp <- cbind(y0,y1,y2) ## ensemble: each column stores a trajectory
 
-apply(ens_temp,2,FUN = epi_du)
+apply(ens_temp,2,FUN = epi_du.test)
 
+apply(matrix(curve),2,FUN = function(curve_in)growth_rate.test(curve_in,c(1,5)))
 ###################################
 ## apply multiple functions to an ensemble
 ###################################

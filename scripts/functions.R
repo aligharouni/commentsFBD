@@ -109,13 +109,24 @@ epi_du <- function(curve){
   return(q[["90%"]]-q[["10%"]])
 }
 
+## estimating r (epidemic initial growth rate) will fit a exponential to a curve between t0 and t1 time interval
+growth_rate <- function(curve,t){
+  t0 <-t[1]
+  t1 <-t[2]
+  dat <- data.frame(y=curve[t0:t1], time=seq(0,t1-t0))
+  m <- lm(log(y)~time,data=dat)
+  r <- coef(m)[2]
+  return(r)
+}
+
 probes <- function(x) {
   ## x is a vector
   c(min = min(x), 
     peak = max(x), 
     peak_time=which.max(x), ## return the index of the first max it hits. Q: what to do with multiple peaks?
     mean = mean(x), 
-    epi_duration = epi_du(x)
+    epi_duration = epi_du(x),
+    r_init = growth_rate(x,c(1,50)) ## growth rate in initial 50 days of the pandemic
   )
 }
 
