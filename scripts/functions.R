@@ -121,10 +121,9 @@ growth_rate <- function(curve,t){
 
 probes <- function(x) {
   ## x is a vector
-  c(min = min(x), 
-    peak = max(x), 
+  c(peak = max(x), 
     peak_time=which.max(x), ## return the index of the first max it hits. Q: what to do with multiple peaks?
-    mean = mean(x), 
+    total_sz = sum(x), ## take it
     epi_duration = epi_du(x),
     r_init = growth_rate(x,c(1,50)) ## growth rate in initial 50 days of the pandemic
   )
