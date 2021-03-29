@@ -1,7 +1,7 @@
 ## Dr. Ben Bolker and Ali Gharouni
 ## Spring 2021, UNiversity of McMaster
 ## Comparison of Juul's work with alternative centrality scoring of an epidemic ensemble.
-## We used L2 norm, FBP and Mahalonobis on probes.
+## We used L2 norm, FBP and Mahalanobis on probes.
 
 source('functions.R')
 library(tidyverse)
@@ -121,3 +121,14 @@ long_ensemble <- ensemble_J %>% as.matrix() %>% reshape2::melt() %>%
 theme_set(theme_bw())
 ggplot(envdat, aes(tvec)) + geom_ribbon(aes(ymin=lwr,ymax=upr),colour=NA, alpha=0.4, fill="blue") +
     facet_wrap(~method) + geom_line(data=long_ensemble, aes(y=value,group=grp), alpha=0.05)
+
+
+library(directlabels)
+print(ggplot(envdat, aes(tvec))
+      + geom_ribbon(aes(ymin=lwr,ymax=upr,fill=method,colour=method),alpha=0.4,lwd=2)
+      + geom_line(data=long_ensemble, aes(y=value,group=grp), alpha=0.05)
+      + geom_dl(aes(label=method,y=upr,colour=method),
+                method=list(cex=2,"top.points"))
+      ## scale_colour_brewer(palette="Dark2") +
+      ## scale_fill_brewer(palette="Dark2") 
+      )

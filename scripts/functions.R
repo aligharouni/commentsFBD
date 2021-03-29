@@ -105,7 +105,7 @@ EnsRank_all <- function(ensemble,numSample,sizeSample){
 
 ## epidemic duration (e.g. time between 10% and 90% cumulative cases)
 epi_du <- function(curve){
-  q <- quantile(cumsum(curve),c(0.1,0.9))
+  q <- quantile(cumsum(curve),cx(0.1,0.9))
   return(q[["90%"]]-q[["10%"]])
 }
 
