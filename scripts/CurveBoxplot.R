@@ -89,7 +89,6 @@ envelope_list <- c(envelope_list,
 ###################################
 
 probes_mat <-t(apply(ensemble_J,2, probes))
-# probes <- t(probes_mat)
 
 Sigma <- cov(probes_mat)
 mahalmat <- matrix(NA, n_traj, n_traj)

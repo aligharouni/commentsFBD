@@ -103,17 +103,20 @@ EnsRank_all <- function(ensemble,numSample,sizeSample){
 ## Probes FUNCTIONs
 ##########################################
 
-## epidemic duration (e.g. time between 10% and 90% cumulative cases)
+## epidemic duration (e.g. time between 10% and 90% prevalence cumulative cases)
 epi_du <- function(curve){
-  q <- quantile(cumsum(curve),cx(0.1,0.9))
-  return(q[["90%"]]-q[["10%"]])
+  q <- quantile(cumsum(curve),c(0.1,0.9))
+  t2 <- which(cumsum(curve)>=q[["90%"]])[1] 
+  t1 <- which(cumsum(curve)>=q[["10%"]])[1]
+  delta <- t2-t1
+  return(delta) 
 }
 
-## estimating r (epidemic initial growth rate) will fit a exponential to a curve between t0 and t1 time interval
-growth_rate <- function(curve,t){
-  t0 <-t[1]
-  t1 <-t[2]
-  dat <- data.frame(y=curve[t0:t1], time=seq(0,t1-t0))
+## Estimating the initial growth rate when the prevalence is 10%;
+growth_rate <- function(curve,prevalence=0.1){
+  q <- quantile(cumsum(curve),prevalence)
+  t <- which(cumsum(curve)>=unname(q))[1]
+  dat <- data.frame(y=curve[1:t], time=seq(0,t-1))
   m <- lm(log(y)~time,data=dat)
   r <- coef(m)[2]
   return(r)
@@ -123,9 +126,9 @@ probes <- function(x) {
   ## x is a vector
   c(peak = max(x), 
     peak_time=which.max(x), ## return the index of the first max it hits. Q: what to do with multiple peaks?
-    total_sz = sum(x), ## take it
+    total_sz = sum(x), ## final size of the epidemic
     epi_duration = epi_du(x),
-    r_init = growth_rate(x,c(1,50)) ## growth rate in initial 50 days of the pandemic
+    r_init = growth_rate(x) ## initial growth rate given the default prevalence %
   )
 }
 
