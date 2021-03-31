@@ -32,6 +32,8 @@ rnkmat <- EnRkTemp_J[["ensembRank"]] ## take the resulted rank mat
 
 md1 <- rank(colSums(rnkmat)) ## , ties="random")
 plot(sort(md1)) ## Note the discontinuity!?
+## Discontinuity is due to ties; if ties were broken with 'random' this
+## would go away
 central_curves <- which(md1>quantile(md1,0.5))
 
 envelope_list <- c(envelope_list,
@@ -89,6 +91,13 @@ envelope_list <- c(envelope_list,
 ###################################
 
 probes_mat <-t(apply(ensemble_J,2, probes))
+pdf("probes_hist.pdf", width=8,height=5)
+op <- par(mfrow=c(2,3))
+for (i in 1:ncol(probes_mat)) {
+    hist(probes_mat[,i],main=colnames(probes_mat)[i])
+}
+par(op)
+dev.off()
 
 Sigma <- cov(probes_mat)
 mahalmat <- matrix(NA, n_traj, n_traj)
