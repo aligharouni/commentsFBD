@@ -105,21 +105,30 @@ EnsRank_all <- function(ensemble,numSample,sizeSample){
 
 ## epidemic duration (e.g. time between 10% and 90% prevalence cumulative cases)
 epi_du <- function(curve){
-  q <- quantile(cumsum(curve),c(0.1,0.9))
-  t2 <- which(cumsum(curve)>=q[["90%"]])[1] 
-  t1 <- which(cumsum(curve)>=q[["10%"]])[1]
-  delta <- t2-t1
-  return(delta) 
+  total_sz <- sum(curve)
+  cdf <- cumsum(curve)
+  t1 <- which(cdf >= 0.1*total_sz)[1]
+  t2 <- which(cdf >= 0.9*total_sz)[1]
+  ## the following quantile approach didn't work, I may miss something!
+  # q <- quantile(cumsum(curve),c(0.1,0.9))
+  # t2 <- which(cumsum(curve)>=q[["90%"]])[1] 
+  # t1 <- which(cumsum(curve)>=q[["10%"]])[1]
+  return(t2-t1) 
 }
 
 ## Estimating the initial growth rate when the prevalence is 10%;
-growth_rate <- function(curve,prevalence=0.1){
-  q <- quantile(cumsum(curve),prevalence)
-  t <- which(cumsum(curve)>=unname(q))[1]
-  dat <- data.frame(y=curve[1:t], time=seq(0,t-1))
+growth_rate <- function(curve,prevalence){
+  total_sz <- sum(curve)
+  cdf <- cumsum(curve)
+  t1 <- which(cdf > 0)[1] ## start the fit from the first day of nonzero prevalence 
+  t2 <- which(cdf >= prevalence*total_sz)[1]
+  dat <- data.frame(y=curve[t1:t2], time=seq(0,t2-t1))
+  ## the following quantile approach didn't work, I may miss something!
+  # q <- quantile(cumsum(curve),prevalence)
+  # t <- which(cumsum(curve)>=unname(q))[1]
+  # dat <- data.frame(y=curve[1:t], time=seq(0,t-1))
   m <- lm(log(y)~time,data=dat)
-  r <- coef(m)[2]
-  return(r)
+  return(coef(m)[2])
 }
 
 probes <- function(x) {
@@ -128,7 +137,7 @@ probes <- function(x) {
     peak_time=which.max(x), ## return the index of the first max it hits. Q: what to do with multiple peaks?
     total_sz = sum(x), ## final size of the epidemic
     epi_duration = epi_du(x),
-    r_init = growth_rate(x) ## initial growth rate given the default prevalence %
+    r_init = growth_rate(x,prevalence=0.1) ## initial growth rate given the default prevalence %
   )
 }
 
