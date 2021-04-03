@@ -104,16 +104,24 @@ EnsRank_all <- function(ensemble,numSample,sizeSample){
 ##########################################
 
 ## epidemic duration (e.g. time between 10% and 90% prevalence cumulative cases)
-epi_du <- function(curve){
-  total_sz <- sum(curve)
-  cdf <- cumsum(curve)
-  t1 <- which(cdf >= 0.1*total_sz)[1]
-  t2 <- which(cdf >= 0.9*total_sz)[1]
-  ## the following quantile approach didn't work, I may miss something!
-  # q <- quantile(cumsum(curve),c(0.1,0.9))
-  # t2 <- which(cumsum(curve)>=q[["90%"]])[1] 
-  # t1 <- which(cumsum(curve)>=q[["10%"]])[1]
-  return(t2-t1) 
+##' @examples
+##' ensemble_J <- read_csv("./data/juul1.csv", col_names = FALSE) ## the columns are the trajs
+##' op <- par(mfrow=c(1,2))
+##' hist(apply(ensemble_J,2,epi_du),main="fracsum",xlab="")
+##' hist(apply(ensemble_J,2,epi_du,method="quantile"), main="quantile",xlab="")
+##' par(op)
+epi_du <- function(curve,method=c("fracsum","quantile")) {
+    method <- match.arg(method)
+    total_sz <- sum(curve)
+    cdf <- cumsum(curve)
+    if (method=="fracsum") {
+        t1 <- cdf[cdf >= 0.1*total_sz][1]
+        t2 <- cdf[cdf >= 0.9*total_sz][1]
+        return(t2-t1)
+    } else {
+        q <- quantile(cdf,c(0.1,0.9))
+        return(diff(q))
+    }
 }
 
 ## Estimating the initial growth rate when the prevalence is 10%;
