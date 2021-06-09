@@ -1,4 +1,7 @@
 
+while (!require(fda)) {
+  install.packages("fda", dependencies = TRUE)
+}
 
 ## Make a matrix, symetric
 ## input: matrix x

@@ -2,12 +2,13 @@
 ## Spring 2021, UNiversity of McMaster
 ## Comparison of Juul's work with alternative centrality scoring of an epidemic ensemble.
 ## We used L2 norm, FBP and Mahalanobis on probes.
-
+# setwd("projects/AliMac_scripts/scripts/")
 source('functions.R')
 library(tidyverse)
 library(latex2exp)
 library(fda)
 library(roahd)
+
 
 ## Placeholder to save the method specific envelopes including Juul's work, L2, FBP, Mahalonobis on probes.
 envelope_list <- list()  
@@ -38,7 +39,6 @@ central_curves <- which(md1>quantile(md1,0.5))
 
 envelope_list <- c(envelope_list,
                    list(juul=get_envelope(ensemble_J, central_curves)))
-
 ###################################
 ## Pointwise L2 Norm on Juul's data
 ###################################
