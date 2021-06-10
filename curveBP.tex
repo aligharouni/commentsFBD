@@ -43,13 +43,15 @@
 
 \cite{juul2021fixed} presented a useful curve-based alternative to the fixed-time statistics of epidemic curve ensembles. 
 They cautioned that standard pointwise (fixed-time) averages may not be appropriate to summerize ensembles of epidemic curves. Particularly, they discussed that miscapturing key features of an epidemic such as the peak numbers of infections, the time of the peak, etc. may result in obscuring the forcast process.
-While Juul et al.'s implimented their methodology in functional ranking and establishing the 'central set' out of an ensemble, there is a deep existing literature in functional depth and centrality metrics for high dimension data \citep{lopez2009concept,sun2011functional,sun2012exact}. 
+While Juul et al.'s implimented their methodology in functional ranking and establishing the 'central set' out of an ensemble, there is a deep existing literature in functional depth and centrality metrics for high dimension data \citep{fraiman2001trimmed, lopez2007depth, lopez2009concept, sun2011functional,sun2012exact}. It appears that \cite{juul2021fixed} were aware of the functional boxplot concept, since the work of \cite{sun2011functional} have been cited in their study. However, the reason why they apart from the standard functional boxplot framework remains unclear.  
 
-The idea of the functional boxplot goes back farther.
-It starts with the notion of depth which was first introduced for multivariate data in an attempt to generalize the ideas of order statistics, ranks and medians into higher dimensions (see for e.g., \cite{mahalanobis1936generalized,tukey1975mathematics}).
-The notion of depth was extended for functional data by \citep{lopez2009concept}. They introduced the concept of band depth (BD) for ranking-ordering  a sample of functional data from the center outward. This ordeing enables us to define the functional quantiles, centrality or outlyingness of an observation. Further, the classical boxplot for univariate data was extended to the functional boxplot as a visualization tool.
 
-... Juul's method is a special case of *functional depth* (for which fast computational approximations already exist ...). Functional depth is useful because fast and robust. (Why do Juul et al depart from the 'standard' J=2 approach ... ??)
+The idea of the functional boxplot goes back farther to the notion of depth. It was first introduced for multivariate data in an attempt to generalize the ideas of order statistics, ranks and medians into higher dimensions (see for e.g., \cite{mahalanobis1936generalized,tukey1975mathematics}).
+The notion of depth was extended for functional data by \citep{lopez2009concept}. They introduced the concept of band depth (BD) for ranking-ordering  a sample of functional data from the center outward. This ordeing enables us to define the functional quantiles, centrality or outlyingness of an observation. Further, the classical boxplot for univariate data was extended to the functional boxplots and adjusted functional boxplots \citep{sun2011functional,sun2012adjusted} as a visualization tool. 
+
+Juul's method is a special case of functional band depth (for which fast computational approximations already exist ...). Functional depth is useful because fast and robust. (Why do Juul et al depart from the 'standard' J=2 approach ... ??)
+
+It is known that the sample size $n$ and the number of curves $j$ defining a band ($2\leq j \leq J$) determine the computational cost of the band depth \citep{sun2012exact}. It is notable that a small value of $J$ is proposed to avoid computational issues and in particular $J=2$ is preferable for large datasets compared to the approximate resampling method proposed by \citep{lopez2007functional}.
 
 Examples of data depth include the Mahalanobis depth \citep{mahalanobis1936generalized}
 \section{Results}
