@@ -132,7 +132,7 @@ ggplot(envdat, aes(tvec)) + geom_ribbon(aes(ymin=lwr,ymax=upr),colour=NA, alpha=
 
 
 library(directlabels)
-print(ggplot(envdat, aes(tvec))
+cent_plot <- (ggplot(envdat, aes(tvec))
       + geom_ribbon(aes(ymin=lwr,ymax=upr,fill=method,colour=method),alpha=0.4,lwd=2)
       + geom_line(data=long_ensemble, aes(y=value,group=grp), alpha=0.05)
       + geom_dl(aes(label=method,y=upr,colour=method),
@@ -140,3 +140,7 @@ print(ggplot(envdat, aes(tvec))
       ## scale_colour_brewer(palette="Dark2") +
       ## scale_fill_brewer(palette="Dark2") 
       )
+
+ggsave(cent_plot,
+       filename = "cent_plot.pdf" ,
+       width = 12, height = 12, units = "cm")

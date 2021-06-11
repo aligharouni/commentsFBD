@@ -49,40 +49,20 @@ While Juul et al.'s implimented their methodology in functional ranking and esta
 The idea of the functional boxplot goes back farther to the notion of depth. It was first introduced for multivariate data in an attempt to generalize the ideas of order statistics, ranks and medians into higher dimensions (see for e.g., \cite{mahalanobis1936generalized,tukey1975mathematics}).
 The notion of depth was extended for functional data by \citep{lopez2009concept}. They introduced the concept of band depth (BD) for ranking-ordering  a sample of functional data from the center outward. This ordeing enables us to define the functional quantiles, centrality or outlyingness of an observation. Further, the classical boxplot for univariate data was extended to the functional boxplots and adjusted functional boxplots \citep{sun2011functional,sun2012adjusted} as a visualization tool. 
 
-Juul's method is a special case of functional band depth (for which fast computational approximations already exist ...). Functional depth is useful because fast and robust. (Why do Juul et al depart from the 'standard' J=2 approach ... ??)
+The computational cost of the functional band depth has been studied by \citep{sun2012exact}. The computational cost is determined by the sample size of the ensumble $n$ and the number of curves $j$ defining a band ($2\leq j \leq J$). \cite{sun2012exact} argued the robustness and sensiblity of  small value of $J$. In particular $J=2$ is preferable for large datasets. It is notable that in \cite{juul2021fixed}'s work, $n=500$ and $J=50$ (in their paper: $N_{\rm{curves}}=50$).
 
-It is known that the sample size $n$ and the number of curves $j$ defining a band ($2\leq j \leq J$) determine the computational cost of the band depth \citep{sun2012exact}. It is notable that a small value of $J$ is proposed to avoid computational issues and in particular $J=2$ is preferable for large datasets compared to the approximate resampling method proposed by \citep{lopez2007functional}.
+\cite{juul2021fixed} also provided an example of functional ranking according to a some feature of interest, maximum values of newly hospitalized cases in a single day (Fig.~2e). The multivariate generalization of this approach can be implemented by using an appropriate metric among features. In particular, we considered the set of all vectors, in which a curve-spesific vector contains features of interest. We used the Mahalanobis distance \citep{mahalanobis1936generalized} to rank these feature vectors. The envelope of the most central curves includes the curves with the rank within the 50\% quantile. The Mahalanobis distance provides a measure of similarity between multivariate data and uses covariance information between features to weight the contributions to the distance. The Euclidean distance, on the other hand, in essence gives excess weight to variables (features) that are highly correlated and gives additional weight to variables that have similar information. The Mahalanobis distance gives less weight to those variables that have high variance and to those variables that have high correlation, so that other feature variables with lower correlations can contribute to the distance. The Mahalanobis distance has been used in pattern recognition for several decades,
+including species identification in zoology \citep{robinson1975geographical}, diagnostic validity in neurology \citep{john1988neurometrics}. 
+The epidemic features of ineterst that we considered here include the peak value of newly infections, time of the peak, final size of the epidemic, epidemic duration and the initial growth rate of the infection. Note that the choice of the epidemic features depends on the objectives of the study (see for e.g., \cite{probert2016decision}).
 
-Examples of data depth include the Mahalanobis depth \citep{mahalanobis1936generalized}
+
+
 \section{Results}
 
 \begin{figure}[h!]
 \centering
-\begin{subfigure}[t]{.45\textwidth}
-\centering
-\includegraphics[width=\linewidth]{scripts/pix/fig2b_juul.pdf}
-\caption{}\label{p.a}
-\end{subfigure}
-%
-\begin{subfigure}[t]{.45\textwidth}
-\centering
-\includegraphics[width=\linewidth]{scripts/pix/fbplot_juul.pdf}
-\caption{}\label{p.b}
-\end{subfigure}
-%
-\begin{subfigure}[t]{.45\textwidth}
-\centering
-\includegraphics[width=\linewidth]{scripts/pix/L2_juul.pdf}
-\caption{}\label{p.c}
-\end{subfigure}
-%
-\begin{subfigure}[t]{.45\textwidth}
-\centering
-\includegraphics[width=\linewidth]{scripts/pix/mahal_probes_juul.pdf}
-\caption{}\label{p.d}
-\end{subfigure}
-\caption{Other options of curve-based statistics on Juul's et al work}
-\label{pan}
+\includegraphics[width=\linewidth]{scripts/cent_plot.pdf}
+\caption{Comparison of alternative methods of functional boxplots.}\label{p.a}
 \end{figure}
 
 

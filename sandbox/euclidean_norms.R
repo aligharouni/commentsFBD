@@ -9,6 +9,3 @@ matplot(x=tvec,y=m,type = 'l')
 
 dist(t(m), method = "euclidean", diag = TRUE, upper = TRUE, p = 2) ## by default gives L2 
 dmat <- as.matrix(dist(t(m), method = "euclidean", diag = TRUE, upper = TRUE, p = 2))
-
-
-
