@@ -68,6 +68,8 @@ This is a commentary work motivated by \cite{juul2021fixed}'s work in which a fe
 
 Specifically, we used the function fda() in R \citep{R} package \pkg{roahd} \citep{roahd}, with the choice of modified band depth (MBD) to break ties which is based on the fast algorithm proposed by \cite{sun2012exact}. 
 
+\bmb{not sure we should bother with these?}
+
 We also use pairwise distances between the curves and quantiles of centrality as an alternative method to a sampling-based functional boxplot. In particular, we compute all pairwise distances -- here we used $\ell_2$ norm which gives the area between the two curves -- between the curves, determine the median-like distance of a curve to all others as the minimum of sum of distances, estimate the distribution of distances. The curve-based descriptive statistics is as follows;
 (1) ranking the curves from more central, i.e., closer to the distribution median (or mean) to less central, and (2) plot the envelope containing the most central curves, i.e. the pointwise min/max curves of a subset of curves with the lowest sum (or sum of squares) of distances to the other curves. Note that the distribution median and mean are highly correlated and in this context median makes the most sense because \ali{...?}. Also, the most central set depends on the choice of the functional norm and further research is needed for clarification. We caution that functional norms that gives a distance of exactly zero on a slightly time-shifted step function (e.g., Fréchet distance and dynamic time-warping \ali{refs?}) seems inappropriate.
 
@@ -82,7 +84,9 @@ put them in the same mode/component of the distribution.  The epidemic features 
 \includegraphics[width=\linewidth]{scripts/cent_plot.pdf}
 \caption{Comparison of alternative methods of functional boxplots.}\label{p.a}
 \end{figure}
+\bmb{plot needs work: adjust label text, drop primary legend, adjust spacing of labels, get the size right (12 in is too small and 12 cm is too big}
 
-
+\bmb{do we know why juul curve is different from fda? can we check and see if juul algorithm converges to fda for ncurves=2, or if fda converges to juul for ncurves=50? do roahd and fda give similar curves?}
+  
 \bibliography{./AliMac}
 \end{document}

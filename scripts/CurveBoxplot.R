@@ -8,21 +8,22 @@ library(tidyverse)
 library(latex2exp)
 library(fda)
 library(roahd)
+library(directlabels)
 
 
 ## Placeholder to save the method specific envelopes including Juul's work, L2, FBP, Mahalonobis on probes.
-envelope_list <- list()  
+envelope_list <- list()
 
 ###################################
 ## Juul's work replicating panel b;
 ###################################
-## upload Fig.2 ensemble  
+## upload Fig.2 ensemble
 ensemble_J <- read_csv("./data/juul1.csv", col_names = FALSE) ## the columns are the trajs
 tvec <- seq(nrow(ensemble_J))-1 ## time domain
 n_traj <- ncol(ensemble_J)
 
 ###################################
-## Juul et al., Fig. 2 panel b; 
+## Juul et al., Fig. 2 panel b;
 ## the centrality of curves was ranked in different ways: all-or-nothing ranking for the full predicted time interval, Ncurves = 50 and Nsamples = 100
 ###################################
 set.seed(1234)
@@ -50,9 +51,9 @@ dmatl2 <- as.matrix(dist(t(ensemble_J), method = "euclidean", upper = TRUE, p = 
 stopifnot(isSymmetric(dmatl2))
 
 ## l2 mean corresponding to arithmetic mean: minimize sum of squares of distances
-md2l2 <- rowSums(dmatl2^2)  
+md2l2 <- rowSums(dmatl2^2)
 m2l2 <- which.min(md2l2)
-## corresponding to median: minimize sum of distances 
+## corresponding to median: minimize sum of distances
 md1l2 <- rowSums(dmatl2)
 m1l2 <- which.min(md1l2)
 ## Correlated mean and median?
@@ -68,19 +69,19 @@ envelope_list <- c(envelope_list,
 ## Functional Boxplot (FDA) on Juul's data
 ###################################
 
-## This is similar to Juul's et al. method but instead the sample size is 2 at each draw 
+## This is similar to Juul's et al. method but instead the sample size is 2 at each draw
 ## Data depth is a well-known and useful nonparametric tool for analyzing functional data. It provides a novel way of ranking a sample of curves from the center outwards and defining robust statistics, such as the median or trimmed means.
 
 fD <- fData(tvec,as.matrix(t(ensemble_J))) ## note that the trajs are on rows in fD object
 # dev.new()
 ff <- fbplot(fD,method='MBD', plot=FALSE,
-             outliercol = 2, 
+             outliercol = 2,
              fullout = FALSE,
              outline=FALSE,
              main = "functional boxplot, fbplot()",
              xlab = "Day",
-             ylab = "Newly hospitalized" 
-             ) 
+             ylab = "Newly hospitalized"
+             )
 ## if plot=false, it outputs the calculations and scores
 
 envelope_list <- c(envelope_list,
@@ -130,17 +131,15 @@ theme_set(theme_bw())
 ggplot(envdat, aes(tvec)) + geom_ribbon(aes(ymin=lwr,ymax=upr),colour=NA, alpha=0.4, fill="blue") +
     facet_wrap(~method) + geom_line(data=long_ensemble, aes(y=value,group=grp), alpha=0.05)
 
-
-library(directlabels)
 cent_plot <- (ggplot(envdat, aes(tvec))
       + geom_ribbon(aes(ymin=lwr,ymax=upr,fill=method,colour=method),alpha=0.4,lwd=2)
       + geom_line(data=long_ensemble, aes(y=value,group=grp), alpha=0.05)
       + geom_dl(aes(label=method,y=upr,colour=method),
                 method=list(cex=2,"top.points"))
       ## scale_colour_brewer(palette="Dark2") +
-      ## scale_fill_brewer(palette="Dark2") 
+      ## scale_fill_brewer(palette="Dark2")
       )
 
 ggsave(cent_plot,
        filename = "cent_plot.pdf" ,
-       width = 12, height = 12, units = "cm")
+       width = 12, height = 12, units = "in")
