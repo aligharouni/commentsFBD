@@ -312,3 +312,5 @@ cpdir/
 *.out
 .texdeps/*
 *.Rout
+
+*.pdf
