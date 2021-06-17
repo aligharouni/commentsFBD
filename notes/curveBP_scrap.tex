@@ -51,6 +51,9 @@
 %It is notable that \cite{juul2021fixed}'s sampling-based approach is a special case of functional depth, where $n=500$ and $J=50$ (in their paper: $N_{\rm{curves}}=50$) and random samples were uniformly drawn $N_{\rm{samples}}=100$ times. Likewise the functional depth method, the centrality scores of all curves in the ensemble were updated based on whether the entire curve is contained in the sample-specific envelope. The most central curves are the ones with their scores above the 50\% percentile of scores. Here, we use the functional boxplot on \cite{juul2021fixed}'s dataset, thus ${500}\choose{2}$ samples determine the centrality scores.
 
 
+% Specifically, we used the function fda() in R \citep{R} package \pkg{roahd} \citep{roahd}, with the choice of modified band depth (MBD) to break ties which is based on the fast algorithm proposed by \cite{sun2012exact}. 
+% 
+
 \bibliography{../AliMac}
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
