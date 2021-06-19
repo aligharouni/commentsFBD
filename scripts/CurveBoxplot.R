@@ -9,7 +9,10 @@ library(latex2exp)
 library(fda)
 library(roahd)
 library(directlabels)
-
+library(colorspace)
+library(ggrepel)
+library(ggrastr)
+library(tikzDevice)
 
 ## Placeholder to save the method specific envelopes including Juul's work, L2, FBP, Mahalonobis on probes.
 envelope_list <- list()
@@ -122,24 +125,41 @@ envelope_list <- c(envelope_list,
                    list(mahal=get_envelope(ensemble_J, central_curves_mah)))
 
 
+envelope_list <- envelope_list[names(envelope_list) != "L2norm"]
 envdat <- dplyr::bind_rows(envelope_list, .id="method")
 
 long_ensemble <- ensemble_J %>% as.matrix() %>% reshape2::melt() %>%
     rename(tvec="Var1",grp="Var2") %>% mutate(across(tvec, ~.-1))
 
 theme_set(theme_bw())
-ggplot(envdat, aes(tvec)) + geom_ribbon(aes(ymin=lwr,ymax=upr),colour=NA, alpha=0.4, fill="blue") +
-    facet_wrap(~method) + geom_line(data=long_ensemble, aes(y=value,group=grp), alpha=0.05)
+## ggplot(envdat, aes(tvec)) + geom_ribbon(aes(ymin=lwr,ymax=upr),colour=NA, alpha=0.4, fill="blue") +
+##    facet_wrap(~method) + geom_line(data=long_ensemble, aes(y=value,group=grp), alpha=0.05)
+
+labvec <- c(juul = "FBD\n($J = 50$)",
+            fda = "FBD\n($J = 2$)",
+            mahal = "Mahalanobis\n(6 features)")
+
+envdat <- mutate(envdat, across(method, ~ labvec[.]))
+maxdat <- (envdat
+  %>% group_by(method)
+  %>% filter(upr == max(upr))
+)
 
 cent_plot <- (ggplot(envdat, aes(tvec))
-      + geom_ribbon(aes(ymin=lwr,ymax=upr,fill=method,colour=method),alpha=0.4,lwd=2)
-      + geom_line(data=long_ensemble, aes(y=value,group=grp), alpha=0.05)
-      + geom_dl(aes(label=method,y=upr,colour=method),
-                method=list(cex=2,"top.points"))
-      ## scale_colour_brewer(palette="Dark2") +
-      ## scale_fill_brewer(palette="Dark2")
-      )
+  + geom_ribbon(aes(ymin=lwr,ymax=upr,fill=method,colour=method),alpha=0.4,lwd=1)
+  + rasterise(geom_line(data=long_ensemble, aes(y=value,group=grp), alpha=0.1),
+              dpi = 300)
+  ## + geom_dl(aes(label=method,y=upr,colour=method),
+  ## method=list(cex=2,"top.points"))
+  + geom_label_repel(data = maxdat, aes(label=method, y = upr, colour=method),
+                     force=50, force_pull = 0.1)
+  + scale_colour_discrete_qualitative()
+  + scale_fill_discrete_qualitative()
+  + labs(x="time", y="number infected")
+  + theme(legend.position = "none")
+)
 
 ggsave(cent_plot,
-       filename = "cent_plot.pdf" ,
-       width = 12, height = 12, units = "in")
+       device = tikz,
+       filename = "cent_plot.tex" ,
+       width = 6, height = 6, units = "in")

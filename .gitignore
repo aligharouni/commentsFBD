@@ -314,3 +314,7 @@ cpdir/
 *.Rout
 
 *.pdf
+*.png
+cent_plot.tex
+*~
+
