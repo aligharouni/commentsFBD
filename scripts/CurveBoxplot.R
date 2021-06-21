@@ -45,6 +45,15 @@ central_curves <- which(md1>quantile(md1,0.5))
 envelope_list <- c(envelope_list,
                    list(juul=get_envelope(ensemble_J, central_curves)))
 ###################################
+## ckeck: Does juul algorithm converges to fda for ncurves=2?
+set.seed(1234)
+EnRkTemp_J2 <- EnsRank_all(ensemble_J,numSample=100,sizeSample=2)
+rnkmat2 <- EnRkTemp_J[["ensembRank"]]
+md12 <- rank(colSums(rnkmat2))
+central_curves2 <- which(md12>quantile(md1,0.5))
+envelope_list <- c(envelope_list,
+                   list(juul_J2=get_envelope(ensemble_J, central_curves2)))
+###################################
 ## Pointwise L2 Norm on Juul's data
 ###################################
 ## The distance between 2 curves is the area between them
@@ -138,7 +147,9 @@ theme_set(theme_bw())
 
 labvec <- c(juul = "FBD\n($J = 50$)",
             fda = "FBD\n($J = 2$)",
-            mahal = "Mahalanobis\n(6 features)")
+            mahal = "Mahalanobis\n(6 features)",
+            juul_J2 = "Juul\n($J = 2$)"
+            )
 
 envdat <- mutate(envdat, across(method, ~ labvec[.]))
 
@@ -182,3 +193,9 @@ ggsave(cent_plot,
        filename = "cent_plot.tex",
        standAlone = TRUE,
        width = 6, height = 6, units = "in")
+
+envdat_temp <- envdat %>% filter(method==c("FBD\n($J = 2$)","Juul\n($J = 2$)"))
+cent_plot2 <- (ggplot(envdat_temp, aes(tvec))
+              + geom_ribbon(aes(ymin=lwr,ymax=upr,fill=method,colour=method),alpha=0.4,lwd=1)
+              )
+print(cent_plot2)
