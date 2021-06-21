@@ -2,7 +2,7 @@
 ## Spring 2021, UNiversity of McMaster
 ## Comparison of Juul's work with alternative centrality scoring of an epidemic ensemble.
 ## We used L2 norm, FBP and Mahalanobis on probes.
-setwd("projects/AliMac_scripts/scripts/")
+## setwd("projects/AliMac_scripts/scripts/")
 source('functions.R')
 library(tidyverse)
 library(latex2exp)
@@ -141,9 +141,14 @@ labvec <- c(juul = "FBD\n($J = 50$)",
             mahal = "Mahalanobis\n(6 features)")
 
 envdat <- mutate(envdat, across(method, ~ labvec[.]))
+
+## manual label positioning
 maxdat <- (envdat
   %>% group_by(method)
   %>% filter(upr == max(upr))
+  %>% ungroup()
+  %>% mutate(xoff = c(-30, +10, -5),
+             yoff = c(50, 70, 50))
 )
 
 cent_plot <- (ggplot(envdat, aes(tvec))
@@ -152,16 +157,28 @@ cent_plot <- (ggplot(envdat, aes(tvec))
               dpi = 300)
   ## + geom_dl(aes(label=method,y=upr,colour=method),
   ## method=list(cex=2,"top.points"))
-  + geom_label_repel(data = maxdat, aes(label=method, y = upr, colour=method),
-                     force=50, force_pull = 0.1)
+  ## + geom_label_repel(data = maxdat, aes(label=method, y = upr, colour=method),
+  ## force=50, force_pull = 0.1)
+  + geom_segment(data = maxdat, aes(x = tvec + xoff, xend = tvec,
+                                    y = upr + yoff, yend = upr,
+                                    colour = method),
+                 width = 2)
+  ## labels after segments so segments are masked appropriately
+  + geom_label(data = maxdat, aes(label = method,
+                                  x = tvec + xoff,
+                                  y = upr + yoff,
+                                  colour = method),
+               fill = "white",
+               label.padding = unit(0.3, "lines"))
   + scale_colour_discrete_qualitative()
   + scale_fill_discrete_qualitative()
-  + labs(x="time", y="number infected")
+  + labs(x="time", y="number newly hospitalized")
   + theme(legend.position = "none")
 )
-## Not sure why, but without these options ggsave gives an empty Tex file.
+
 options(tikzMetricPackages = c("\\usepackage[utf8]{inputenc}","\\usepackage[T1]{fontenc}", "\\usetikzlibrary{calc}", "\\usepackage{amssymb}"))
 ggsave(cent_plot,
        device = tikz,
-       filename = "cent_plot.tex" ,
+       filename = "cent_plot.tex",
+       standAlone = TRUE,
        width = 6, height = 6, units = "in")
