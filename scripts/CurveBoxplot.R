@@ -2,7 +2,7 @@
 ## Spring 2021, UNiversity of McMaster
 ## Comparison of Juul's work with alternative centrality scoring of an epidemic ensemble.
 ## We used L2 norm, FBP and Mahalanobis on probes.
-# setwd("projects/AliMac_scripts/scripts/")
+setwd("projects/AliMac_scripts/scripts/")
 source('functions.R')
 library(tidyverse)
 library(latex2exp)
@@ -11,6 +11,7 @@ library(roahd)
 library(directlabels)
 library(colorspace)
 library(ggrepel)
+library(Cairo)
 library(ggrastr)
 library(tikzDevice)
 
@@ -158,7 +159,8 @@ cent_plot <- (ggplot(envdat, aes(tvec))
   + labs(x="time", y="number infected")
   + theme(legend.position = "none")
 )
-
+## Not sure why, but without these options ggsave gives an empty Tex file.
+options(tikzMetricPackages = c("\\usepackage[utf8]{inputenc}","\\usepackage[T1]{fontenc}", "\\usetikzlibrary{calc}", "\\usepackage{amssymb}"))
 ggsave(cent_plot,
        device = tikz,
        filename = "cent_plot.tex" ,
