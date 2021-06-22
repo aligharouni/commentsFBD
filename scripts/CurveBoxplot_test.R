@@ -105,11 +105,20 @@ envelope_list <- c(envelope_list,
                    list(fda_fda=get_envelope(ensemble_J, ff_fda$depth>median(ff_fda$depth))))
 ## roahd
 fD <- fData(tvec,as.matrix(t(ensemble_J))) 
-ff_roahd <-roahd::fbplot(fD,method='MBD', plot=FALSE, #method='MBD'
+ff_roahd <-roahd::fbplot(fD,method='MBD', plot=FALSE, 
                          outliercol = 2,
                          fullout = FALSE,
                          outline=FALSE
 )
+## The following gives a uniroot() error! not sure at this point.
+# ff_roahd <-roahd::fbplot(fD,method='MBD', plot=FALSE, 
+#                          adjust = list( N_trials = 10,
+#                                         trial_size = 2 * fD$N,
+#                                         VERBOSE = TRUE ),
+#                          # outliercol = 2,
+#                          fullout = FALSE,
+#                          outline=FALSE
+# )
 
 envelope_list <- c(envelope_list,
                    list(fda_roahd=get_envelope(ensemble_J, ff_roahd$Depth>median(ff_roahd$Depth))))
