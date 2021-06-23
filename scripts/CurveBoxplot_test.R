@@ -39,8 +39,8 @@ envelope_list <- c(envelope_list,
 ###################################
 ## ckeck: 1- Juul's algorithm with J=2 and fda match?
 set.seed(1234)
-EnRkTemp_J2 <- EnsRank_all(ensemble_J,numSample=1000,sizeSample=2)
-rnkmat2 <- EnRkTemp_J[["ensembRank"]]
+EnRkTemp_J2 <- EnsRank_all(ensemble_J,numSample=100000,sizeSample=2)
+rnkmat2 <- EnRkTemp_J2[["ensembRank"]]
 md12 <- rank(colSums(rnkmat2))
 central_curves2 <- which(md12>quantile(md1,0.5))
 envelope_list <- c(envelope_list,
@@ -61,12 +61,11 @@ fD <- fData(tvec,as.matrix(t(ensemble_J))) ## note that the trajs are on rows in
 #              xlab = "Day",
 #              ylab = "Newly hospitalized"
 # )
-ff <- roahd::fbplot(fD,method='MBD', plot=FALSE, 
+ff <- roahd::fbplot(fD,method='BD2', plot=FALSE, #method='MBD'
                     main = "functional boxplot, fbplot()",
                     xlab = "Day",
                     ylab = "Newly hospitalized"
 )
-## if plot=false, it outputs the calculations and scores
 
 envelope_list <- c(envelope_list,
                    list(fda_roahd=get_envelope(ensemble_J, ff$Depth>median(ff$Depth))))
@@ -88,6 +87,7 @@ labvec <- c(juul = "FBD\n($J = 50$)",
 envdat <- mutate(envdat, across(method, ~ labvec[.]))
 
 envdat_temp <- envdat %>% filter(method==c("FBD\n($J = 2$)","Juul\n($J = 2$)"))
+# envdat_temp <- envdat %>% filter(method==c("FBD\n($J = 50$)","Juul\n($J = 2$)"))
 cent_plot2 <- (ggplot(envdat_temp, aes(tvec))
                + geom_ribbon(aes(ymin=lwr,ymax=upr,fill=method,colour=method),alpha=0.4,lwd=1)
 )
@@ -124,15 +124,7 @@ envelope_list <- c(envelope_list,
                    list(fda_roahd=get_envelope(ensemble_J, ff_roahd$Depth>median(ff_roahd$Depth))))
 
 envdat <- dplyr::bind_rows(envelope_list, .id="method")
-
-long_ensemble <- ensemble_tmp %>% as.matrix() %>% reshape2::melt() %>%
-  rename(tvec="Var1",grp="Var2") %>% mutate(across(tvec, ~.-1))
-
 theme_set(theme_bw())
-
-ggplot(envdat, aes(tvec)) + geom_ribbon(aes(ymin=lwr,ymax=upr),colour=NA, alpha=0.4, fill="blue") +
-  facet_wrap(~method) + geom_line(data=long_ensemble, aes(y=value,group=grp), alpha=0.05)
-
 labvec <- c(fda_fda = "FBD\n(fda)",
             fda_roahd = "FBD\n(roahd)")
 
