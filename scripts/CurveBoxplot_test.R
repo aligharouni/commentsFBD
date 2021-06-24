@@ -39,7 +39,7 @@ envelope_list <- c(envelope_list,
 ###################################
 ## ckeck: 1- Juul's algorithm with J=2 and fda match?
 set.seed(1234)
-EnRkTemp_J2 <- EnsRank_all(ensemble_J,numSample=100000,sizeSample=2)
+EnRkTemp_J2 <- EnsRank_all(ensemble_J,numSample=124750,sizeSample=2)
 rnkmat2 <- EnRkTemp_J2[["ensembRank"]]
 md12 <- rank(colSums(rnkmat2))
 central_curves2 <- which(md12>quantile(md1,0.5))
