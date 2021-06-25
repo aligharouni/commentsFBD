@@ -32,8 +32,8 @@ dtraj <- function(submatrix){
 
 get_envelope <- function(ensemble, indices) {
   data.frame(tvec=seq(nrow(ensemble))-1,
-             lwr=apply(ensemble[,indices],1,min),
-             upr=apply(ensemble[,indices],1,max))
+             lwr=apply(as.matrix(ensemble[,indices]),1,min),
+             upr=apply(as.matrix(ensemble[,indices]),1,max))
 }
 
 ##########################################

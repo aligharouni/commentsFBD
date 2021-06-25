@@ -1,3 +1,4 @@
+
 # This is meant to compare and to verify whether 
 # 1- Juul's algorithm with J=2 and fda match?
 # 2- FBD + J=50 in the comparison
@@ -39,10 +40,10 @@ envelope_list <- c(envelope_list,
 ###################################
 ## ckeck: 1- Juul's algorithm with J=2 and fda match?
 set.seed(1234)
-EnRkTemp_J2 <- EnsRank_all(ensemble_J,numSample=124750,sizeSample=2)
+EnRkTemp_J2 <- EnsRank_all(ensemble_J,numSample=100000,sizeSample=2) ##124750
 rnkmat2 <- EnRkTemp_J2[["ensembRank"]]
 md12 <- rank(colSums(rnkmat2))
-central_curves2 <- which(md12>quantile(md1,0.5))
+central_curves2 <- which(md12>quantile(md12,0.5))
 envelope_list <- c(envelope_list,
                    list(juul_J2=get_envelope(ensemble_J, central_curves2)))
 
@@ -53,19 +54,19 @@ envelope_list <- c(envelope_list,
 ## Data depth is a well-known and useful nonparametric tool for analyzing functional data. It provides a novel way of ranking a sample of curves from the center outwards and defining robust statistics, such as the median or trimmed means.
 fD <- fData(tvec,as.matrix(t(ensemble_J))) ## note that the trajs are on rows in fD object
 # dev.new()
-# ff <- roahd::fbplot(fD,method='MBD', plot=FALSE, #method='MBD'
-#              outliercol = 2,
-#              fullout = FALSE,
-#              outline=FALSE,
-#              main = "functional boxplot, fbplot()",
-#              xlab = "Day",
-#              ylab = "Newly hospitalized"
-# )
-ff <- roahd::fbplot(fD,method='BD2', plot=FALSE, #method='MBD'
-                    main = "functional boxplot, fbplot()",
-                    xlab = "Day",
-                    ylab = "Newly hospitalized"
+ff <- roahd::fbplot(fD,method='MBD', plot=FALSE, #method='MBD'
+             outliercol = 2,
+             fullout = FALSE,
+             outline=FALSE,
+             main = "functional boxplot, fbplot()",
+             xlab = "Day",
+             ylab = "Newly hospitalized"
 )
+# ff <- roahd::fbplot(fD,method='BD2', plot=FALSE, #method='MBD'
+#                     main = "functional boxplot, fbplot()",
+#                     xlab = "Day",
+#                     ylab = "Newly hospitalized"
+# )
 
 envelope_list <- c(envelope_list,
                    list(fda_roahd=get_envelope(ensemble_J, ff$Depth>median(ff$Depth))))
@@ -137,3 +138,39 @@ cent_plot2 <- (ggplot(envdat_temp, aes(tvec))
 print(cent_plot2)
 ## Conclusion: the 2 packages fda and roah gives the same results.
 
+#################################################
+## Extra Exploration: more test on #1 of the list
+##i.e., explore the differences between fda() and Juul's algorithm (fir J=2) on a simple and known example
+#################################################
+envelope_list <- list()
+## Creating toy example with trajectories in columns  
+tvec <- seq(1,10,length=10)
+y1 <- ifelse(tvec<5,0,1)
+y2 <- ifelse(tvec<6,0,1)
+y3 <- ifelse(tvec<7,0,1)
+
+ens_toy <- cbind(y1,y2,y3)
+matplot(tvec,ens_toy,type="l")
+
+## fda:
+fD <- fData(tvec,as.matrix(t(ens_toy))) 
+
+ff_roahd <-roahd::fbplot(fD,method='MBD', plot=FALSE, 
+                         outliercol = 2,
+                         fullout = FALSE,
+                         outline=FALSE
+)
+
+envelope_list <- c(envelope_list,
+                   list(fda_roahd=get_envelope(ens_toy, ff_roahd$Depth>median(ff_roahd$Depth))))
+
+envelope_list$fda_roahd
+
+## Juul's algorithm with J=2:
+set.seed(1234)
+EnRkTemp_J2 <- EnsRank_all(ens_toy,numSample=3,sizeSample=2)
+rnkmat2 <- EnRkTemp_J2[["ensembRank"]]
+md12 <- rank(colSums(rnkmat2))
+central_curves2 <- which(md12>quantile(md12,0.5))
+envelope_list <- c(envelope_list,
+                   list(juul_J2=get_envelope(ens_toy, central_curves2)))
