@@ -102,6 +102,16 @@ EnsRank_all <- function(ensemble,numSample,sizeSample){
   return(list(sampMat=smat,ensembRank=EnsRank))
 }
 
+EnsRank_all2 <- function(ensemble,numSample,sizeSample){
+## all possible sample combinations
+smat_all <- combn(seq(ncol(ensemble)), sizeSample)
+## sample randomly from all combinations
+smat <- smat_all[, sample(ncol(smat_all),size = numSample,  replace=FALSE)]
+Envlist <- EnvOut(ensemble, t(smat))
+temp <- lapply(Envlist,FUN=function(envelope_in) RnkEns_1sample(ensemble,envelope_in))
+EnsRank <- matrix(unlist(temp),nrow = numSample,byrow = TRUE)
+return(list(sampMat=smat,ensembRank=EnsRank))
+}
 ##########################################
 ## Probes FUNCTIONs
 ##########################################

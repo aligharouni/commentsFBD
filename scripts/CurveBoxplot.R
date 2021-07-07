@@ -2,7 +2,7 @@
 ## Spring 2021, UNiversity of McMaster
 ## Comparison of Juul's work with alternative centrality scoring of an epidemic ensemble.
 ## We used L2 norm, FBP and Mahalanobis on probes.
-## setwd("projects/AliMac_scripts/scripts/")
+# setwd("projects/AliMac_scripts/scripts/")
 source('functions.R')
 library(tidyverse)
 library(latex2exp)
