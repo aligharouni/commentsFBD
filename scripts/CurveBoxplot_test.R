@@ -81,9 +81,9 @@ long_ensemble <- ensemble_J %>% as.matrix() %>% reshape2::melt() %>%
 
 theme_set(theme_bw())
 
-labvec <- c(juul = "FBD\n($J = 50$)",
+labvec <- c(juul = "AG\n($J = 50$)",
             fda_roahd = "FBD\n($J = 2$)",
-            juul_J2 = "Juul\n($J = 2$)"
+            juul_J2 = "AG\n($J = 2$)"
 )
 
 envdat <- mutate(envdat, across(method, ~ labvec[.]))
