@@ -7,8 +7,8 @@
 %% colours
 \usepackage{xcolor}
 \definecolor{linkcolor}{HTML}{0f87ff} % green
-\definecolor{irena}{HTML}{c9657d} % blush
-\definecolor{de}{HTML}{5681c4} % blue
+\definecolor{blush}{HTML}{c9657d} % blush
+\definecolor{blue}{HTML}{5681c4} % blue
 
 \usepackage[colorlinks=true, allcolors=linkcolor]{hyperref}
 
@@ -17,10 +17,13 @@
 \newdateformat{mydate}{\twodigit{\THEDAY}{ }\shortmonthname[\THEMONTH] \THEYEAR}
 
 %% comment macros
-\newcommand{\ali}[1]{\textcolor{irena}{$\langle$\textbf{AG:} #1$\rangle$}}
+\newcommand{\ali}[1]{\textcolor{blush}{$\langle$\textbf{AG:} #1$\rangle$}}
+\newcommand{\bmb}[1]{\textcolor{blue}{$\langle$\textbf{BMB:} #1$\rangle$}}
+
+\usepackage{xspace}
 
 %% journal name macro
-\newcommand{\journalname}{\emph{Nature Physics}}
+\newcommand{\journalname}{\emph{Nature Physics}\xspace}
 
 \setlength{\parskip}{0em}
 
@@ -65,13 +68,14 @@ Hamilton, ON, Canada, L8S 4K1
 
 Dear Editor,
 
-We are pleased to submit an original commentary article entitled
-``Comment on Juul et al. (2021) (?)'' for your consideration for publication in \journalname{}. This is a minor commentary on the paper entitled: "Fixed-time descriptive statistics underestimate extremes of epidemic curve ensembles", Juul et al. 2021 (Nature Physics 17 (1): 5-8 doi: 10.1038/s41567-020-01121-y). It is notable we have contacted the authors and sent them a copy of our commentary. The authors have responded to us and they seem happy with our comments. 
+We are pleased to submit an original commentary article
+\bmb{check journal web page and find an example of a published comment in \journalname{}. (1) are these called ``commentary'' or ``matters arising''? (2) do they typically have informative titles? If they do, we could use something like ``additional details on functional boxplots'' as the title}
+entitled ``Comment on Juul et al. (2021)''
+for your consideration for publication in \journalname{}. This is a minor comment on ``Fixed-time descriptive statistics underestimate extremes of epidemic curve ensembles", Juul et al. 2021 (\journalname{} 17 (1): 5-8 doi: 10.1038/s41567-020-01121-y). We have contacted the authors and sent them a copy of our commentary; the authors replied to our e-mail saying that they generally agreed with the points we made and did not have any concerns about submission.
 
-In particular, our research article accomplishes the following.
-we provide alternative, and more principled, curved-based statistics approaches to approximate the most central set which represents the central 50\% of the ensemble. In particular, we use two functional ranking methods; (1) the sampling-based, fast and robust functional boxplot, and (2) a multivariate generalization of ranking the curves by using Mahalanobis distance among features of interest. We apply our methods on the dataset of the original paper and compare our results with theirs.
+We provide alternative, and more principled, curved-based statistics approaches to approximate the most central set which represents the central 50\% of the ensemble. In particular, we use two functional ranking methods: (1) the sampling-based, fast and robust functional boxplot, and (2) a multivariate generalization of ranking the curves by using Mahalanobis distance among features of interest. We apply our methods on the data set given by the authors and compare our results with theirs.
 
-All authors have approved the manuscript for submission and declare no competing interests. A preprint of this work has been posted to medRxiv (link \ali{do we need to do this?}). The manuscript has not been published or submitted for publication elsewhere. Also we have not had any prior discussions with a \journalname{} editor about the work described in the manuscript. 
+All authors have approved the manuscript for submission and declare no competing interests. A preprint of this work has been posted to medRxiv (link \ali{do we need to do this?} \bmb{not absolutely necessary, but we should}). The manuscript has not been published or submitted for publication elsewhere; we have not previously discussed this submission with any editors at \journalname{}, except for a query about the open access options for commentaries.
 
 Thank you very much for your consideration,
 
@@ -96,7 +100,6 @@ Professor, Departments of Mathematics \& Statistics and Biology,
 
 McMaster University
 
-Member, Michael G. DeGroote Institute for Infectious Disease Research, McMaster University
 \end{flushleft}
 % \end{multicols}
 
