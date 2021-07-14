@@ -96,9 +96,46 @@ while (!py_module_available("curvestat")) {
 ## curvestat <- import("curvestat")
 ```
 
+```{r}
+download.file("https://github.com/jonassjuul/curvestat/raw/master/curvestat/tests/test_data/curves_DKE3.npy", dest="./data/juul1.npy")
+```
+
 ```{python}
 from curvestat import CurveBoxPlot
 from curvestat import LoadRisk
+## import os
+## os.getcwd()
+import numpy as np
+import pandas as pd
+dic_solutions_future = pd.read_csv("./data/juul1.csv")
+## dic_solutions_future = np.load("./data/juul1.npy", allow_pickle = True)
+## type(dic_solutions_future)
+## 149 rows (time points) x 500 curves
+nt = dic_solutions_future.shape[0]
+time_arr = np.arange(0,nt)
+J_vals = [2, 5, 10, 20, 30, 40, 50]
+results = np.zeros(shape = (nt, 4*len(J_vals)))
+for Ji in range(len(J_vals)):
+    print(Ji)
+    Boxplot = CurveBoxPlot(curves=dic_solutions_future,sample_curves=J_vals[Ji],
+                           sample_repititions=500,time=time_arr)
+    rank_allornothing=Boxplot.rank_allornothing()
+    # Get envelope with this choice of ranking
+    boundaries = Boxplot.get_boundaries(rank_allornothing,percentiles=[50,90])
+    b_lwr50 = boundaries['curve-based'][50]['min-boundary']
+    b_upr50 = boundaries['curve-based'][50]['max-boundary']
+    b_lwr90 = boundaries['curve-based'][90]['min-boundary']
+    b_upr90 = boundaries['curve-based'][90]['max-boundary']
+    results[:, 2*Ji] = b_lwr50
+    results[:, 2*Ji + 1] = b_upr50
+    results[:, 2*Ji + 2] = b_lwr90
+    results[:, 2*Ji + 3] = b_upr90
+np.savetxt("juul_boundary1.csv", results)
+## plotting ...
+## import matplotlib.pyplot as plt
+## plt.plot()
+## plt.plot()
+## plt.show()
 ```
 
 
