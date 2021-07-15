@@ -12,8 +12,10 @@ knitr::opts_chunk$set(dev.args = list(png = list(type = "cairo")))
 
 ```{r packages, echo=FALSE, message=FALSE}
 ##setwd("~/projects/AliMac_scripts/scripts/")
-library("reticulate") ## use_python("/usr/bin/python3")
+library(reticulate) ## 
+##use_python("/usr/bin/python3")
 library(SimilarityMeasures) ## for Fréchet distance computation
+library(tidyverse)
 source('functions.R')
 ```
 
@@ -79,8 +81,7 @@ write.table(dmat_fr,"./data/dmat_juul_frechet.csv",sep=",",row.names = FALSE, co
 
 
 
-```{r install_curvestat}
-library(reticulate)
+```{r install_curvestat, echo=FALSE}
 ## ~/Downloads$ sudo apt-get install python3-pip
 ## clone the curvestats in projects dir
 ## pip3 install curvestat
@@ -94,6 +95,8 @@ while (!py_module_available("curvestat")) {
 ## install curvestat
 ## conda_install("r-reticulate", "curvestat")
 ## curvestat <- import("curvestat")
+
+# py_install("panda",pip=TRUE)
 ```
 
 ```{r}
@@ -101,6 +104,7 @@ download.file("https://github.com/jonassjuul/curvestat/raw/master/curvestat/test
 ```
 
 ```{python}
+## Note I couldn't run this in python chunk here, I ran in in systhem python3 
 from curvestat import CurveBoxPlot
 from curvestat import LoadRisk
 ## import os
@@ -130,12 +134,16 @@ for Ji in range(len(J_vals)):
     results[:, 2*Ji + 1] = b_upr50
     results[:, 2*Ji + 2] = b_lwr90
     results[:, 2*Ji + 3] = b_upr90
-np.savetxt("juul_boundary1.csv", results)
+np.savetxt("./data/juul_boundary1.csv", results, delimiter=',')
 ## plotting ...
 ## import matplotlib.pyplot as plt
 ## plt.plot()
-## plt.plot()
 ## plt.show()
+```
+
+
+```{r plotting}
+bnds_juul <- read_csv("./data/juul_boundary1.csv", col_names = FALSE) ## the columns are 
 ```
 
 
