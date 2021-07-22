@@ -96,14 +96,14 @@ while (!py_module_available("curvestat")) {
 ## conda_install("r-reticulate", "curvestat")
 ## curvestat <- import("curvestat")
 
-# py_install("panda",pip=TRUE)
+# py_install("pandas",pip=TRUE)
 ```
 
 ```{r}
 download.file("https://github.com/jonassjuul/curvestat/raw/master/curvestat/tests/test_data/curves_DKE3.npy", dest="./data/juul1.npy")
 ```
 
-```{python}
+```{python curvestat}
 ## Note I couldn't run this in python chunk here, I ran in in systhem python3 
 from curvestat import CurveBoxPlot
 from curvestat import LoadRisk
@@ -130,10 +130,10 @@ for Ji in range(len(J_vals)):
     b_upr50 = boundaries['curve-based'][50]['max-boundary']
     b_lwr90 = boundaries['curve-based'][90]['min-boundary']
     b_upr90 = boundaries['curve-based'][90]['max-boundary']
-    results[:, 2*Ji] = b_lwr50
-    results[:, 2*Ji + 1] = b_upr50
-    results[:, 2*Ji + 2] = b_lwr90
-    results[:, 2*Ji + 3] = b_upr90
+    results[:, 4*Ji] = b_lwr50
+    results[:, 4*Ji + 1] = b_upr50
+    results[:, 4*Ji + 2] = b_lwr90
+    results[:, 4*Ji + 3] = b_upr90
 np.savetxt("./data/juul_boundary1.csv", results, delimiter=',')
 ## plotting ...
 ## import matplotlib.pyplot as plt
@@ -142,9 +142,21 @@ np.savetxt("./data/juul_boundary1.csv", results, delimiter=',')
 ```
 
 
-```{r plotting}
+```{r col_naming, echo=FALSE}
 bnds_juul <- read_csv("./data/juul_boundary1.csv", col_names = FALSE) ## the columns are 
+J_vals <- c(2, 5, 10, 20, 30, 40, 50)
+
+temp <- c()
+for (j in J_vals){
+     temp <- c(temp, sprintf(c("%s_b_lwr50","%s_b_upr50","%s_b_lwr90","%s_b_upr90"),j))
+}
+   
+colnames(bnds_juul) <- temp 
+## FIXME: this change of col names dhould be done in python!
+write.table(bnds_juul,"./data/juul_boundary.csv",sep=",",row.names = FALSE)
+
 ```
+
 
 
 # References
