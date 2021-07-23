@@ -37,19 +37,25 @@ md1 <- rank(colSums(rnkmat)) ## , ties="random")
 central_curves <- which(md1>quantile(md1,0.5))
 
 envelope_list <- c(envelope_list,
-                   list(AG_J50=get_envelope(ensemble_J, central_curves)))
+                   list(AG_J50=cbind(
+                        get_envelope(ensemble_J, central_curves),
+                        nsample=rep.int(100,length(tvec)))) )
 
 ###################################
 ## ckeck: 1- Juul's algorithm with J=2 and fda match?
 set.seed(1234)
 ## BMB: parallelize??
-EnRkTemp_J2 <- EnsRank_all2(ensemble_J, numSample=100000, sizeSample=2) 
+nsamp <- c(10000,100000)
+i <- 1
+EnRkTemp_J2 <- EnsRank_all2(ensemble_J, numSample=nsamp[i], sizeSample=2)
 ## note numSample in fbplot is choose(500,2)
 rnkmat2 <- EnRkTemp_J2[["ensembRank"]]
 md12 <- rank(colSums(rnkmat2))
 central_curves2 <- which(md12>quantile(md12,0.5))
 envelope_list <- c(envelope_list,
-                   list(AG_J2=get_envelope(ensemble_J, central_curves2)))
+                     list(AG_J2_1=cbind(get_envelope(ensemble_J, central_curves2),
+                                     nsample=rep.int(nsamp[i],length(tvec)))
+                          )) 
 
 ###################################
 ## Functional Boxplot (FDA) on Juul's data

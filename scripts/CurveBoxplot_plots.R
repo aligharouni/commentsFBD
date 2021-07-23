@@ -7,7 +7,8 @@ long_ensemble <- ensemble_J %>% as.matrix() %>% reshape2::melt() %>%
 
 labvec <- c(AG_J50 = "AG\n($J = 50$)",
             fda_roahd = "FBD\n($J = 2$)",
-            AG_J2 = "AG\n($J = 2$)",
+            AG_J2_1 = "AG\n($J = 2, samp_sz=10^4$)",
+            AG_J2_2 = "AG\n($J = 2, samp_sz=10^5$)",
             juul_J2 ="Juul\n($J = 2$)"
 )
 
