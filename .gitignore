@@ -317,4 +317,4 @@ cpdir/
 *.png
 cent_plot.tex
 *~
-
+*/.Rhistory
