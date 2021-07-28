@@ -11,7 +11,7 @@ knitr::opts_chunk$set(dev.args = list(png = list(type = "cairo")))
 ```
 
 ```{r packages, echo=FALSE, message=FALSE}
-##setwd("~/projects/AliMac_scripts/scripts/")
+setwd("~/projects/AliMac_scripts/scripts/")
 library(reticulate) ## 
 ##use_python("/usr/bin/python3")
 library(SimilarityMeasures) ## for Fréchet distance computation
@@ -96,10 +96,10 @@ while (!py_module_available("curvestat")) {
 ## conda_install("r-reticulate", "curvestat")
 ## curvestat <- import("curvestat")
 
-# py_install("pandas",pip=TRUE)
+py_install("pandas")
 ```
 
-```{r}
+```{r down_file}
 download.file("https://github.com/jonassjuul/curvestat/raw/master/curvestat/tests/test_data/curves_DKE3.npy", dest="./data/juul1.npy")
 ```
 
@@ -117,10 +117,13 @@ dic_solutions_future = pd.read_csv("./data/juul1.csv")
 ## 149 rows (time points) x 500 curves
 nt = dic_solutions_future.shape[0]
 time_arr = np.arange(0,nt)
-J_vals = [2, 5, 10, 20, 30, 40, 50]
+# J_vals = [2, 5, 10, 20, 30, 40, 50]
+J_vals = [2]
 results = np.zeros(shape = (nt, 4*len(J_vals)))
 for Ji in range(len(J_vals)):
     print(Ji)
+    # Boxplot = CurveBoxPlot(curves=dic_solutions_future,sample_curves=J_vals[Ji],
+    #                        sample_repititions=500,time=time_arr)
     Boxplot = CurveBoxPlot(curves=dic_solutions_future,sample_curves=J_vals[Ji],
                            sample_repititions=500,time=time_arr)
     rank_allornothing=Boxplot.rank_allornothing()
@@ -134,7 +137,8 @@ for Ji in range(len(J_vals)):
     results[:, 4*Ji + 1] = b_upr50
     results[:, 4*Ji + 2] = b_lwr90
     results[:, 4*Ji + 3] = b_upr90
-np.savetxt("./data/juul_boundary1.csv", results, delimiter=',')
+# np.savetxt("./data/juul_boundary1.csv", results, delimiter=',')
+np.savetxt("./data/juul_boundary2.csv", results, delimiter=',')
 ## plotting ...
 ## import matplotlib.pyplot as plt
 ## plt.plot()
@@ -143,7 +147,7 @@ np.savetxt("./data/juul_boundary1.csv", results, delimiter=',')
 
 
 ```{r col_naming, echo=FALSE}
-bnds_juul <- read_csv("./data/juul_boundary1.csv", col_names = FALSE) ## the columns are 
+bnds_juul <- read_csv("./data/juul_boundary2.csv", col_names = FALSE) ## the columns are 
 J_vals <- c(2, 5, 10, 20, 30, 40, 50)
 
 temp <- c()
@@ -153,7 +157,7 @@ for (j in J_vals){
    
 colnames(bnds_juul) <- temp 
 ## FIXME: this change of col names dhould be done in python!
-write.table(bnds_juul,"./data/juul_boundary.csv",sep=",",row.names = FALSE)
+write.table(bnds_juul,"./data/juul_boundary2.csv",sep=",",row.names = FALSE)
 
 ```
 

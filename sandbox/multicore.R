@@ -79,6 +79,15 @@ diag(dmat_fr_test) <- 0
 
 dmat_fr_test <- make_symm(dmat_fr_test)
 
+# ###############################################
+## using doParallel and foreach packages
+# ###############################################
+library(doParallel) # setting up parallel
+library(foreach)
+cl <- makeCluster(detectCores())
+registerDoParallel(cl)
+
+
 
 
 

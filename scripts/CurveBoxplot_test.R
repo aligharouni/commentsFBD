@@ -80,7 +80,7 @@ envelope_list <- c(envelope_list,
 ## From Juul's Python curveboxplot() function
 ###################################
 # J_vals <- c(2, 5, 10, 20, 30, 40, 50)
-bnds_juul <- data_frame(read_csv("./data/juul_boundary.csv", col_names = TRUE)) 
+bnds_juul <- data_frame(read_csv("./data/juul_boundary1.csv", col_names = TRUE)) 
 
 ## note adding 0 to the end of the lwr and upr, since mismatch with length of tvec
 
