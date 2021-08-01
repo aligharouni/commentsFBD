@@ -2,28 +2,26 @@ library(tidyverse); theme_set(theme_bw())
 
 ensemble_J <- read_csv("./data/juul1.csv", col_names = FALSE) ## the columns are the trajs
 envdat <- readRDS("envdat.rds")
-envdat2 <- readRDS("envdat2.rds")
 long_ensemble <- ensemble_J %>% as.matrix() %>% reshape2::melt() %>%
   rename(tvec="Var1",grp="Var2") %>% mutate(across(tvec, ~.-1))
 
-labvec <- c(#AG_J50 = "AG\n($J = 50$)",
-            fda_roahd = "FBD\n($J = 2$)",
-            AG_J2_1 = "AG\n($J = 2, samp_sz=10^4$)",
-            AG_J2_2 = "AG\n($J = 2, samp_sz=10^5$)",
-            juul_J2 ="Juul\n($J = 2$)"
-)
+## nicer labels, to be modified according to envdat  
+# labvec <- c(#AG_J50 = "AG\n($J = 50$)",
+#             fda_roahd = "FBD\n($J = 2$)",
+#             AG_J2_1 = "AG\n($J = 2, samp_sz=10^4$)",
+#             AG_J2_2 = "AG\n($J = 2, samp_sz=10^5$)",
+#             juul_J2 ="Juul\n($J = 2$)"
+# )
 
 ## envdat <- mutate(envdat, across(method, ~ labvec[.]))
-## envdat has already been mutated ??
 
-# envdat_temp <- envdat 
-envdat2 <- rbind(envdat2, filter(envdat[,!(names(envdat) %in% "nsample")], method=="fda_roahd"))
-envdat_temp <- envdat2 
+envdat_temp <- envdat
+# envdat2 <- rbind(envdat2, filter(envdat[,!(names(envdat) %in% "nsample")], method=="fda_roahd"))
 
 # envdat_temp <- envdat %>% filter(method==c("FBD\n($J = 2$)","Juul\n($J = 2$)"))
 # envdat_temp <- envdat %>% filter(method==c("FBD\n($J = 50$)","Juul\n($J = 2$)"))
-cent_plot2 <- (ggplot(envdat_temp, aes(tvec))
-               + geom_ribbon(aes(ymin=lwr,ymax=upr,fill=method,colour=method),alpha=0.4,lwd=1)
+cent_plot2 <- (ggplot(envdat_temp, aes(data.tvec))
+               + geom_ribbon(aes(ymin=data.lwr,ymax=data.upr,fill=method,colour=method),alpha=0.4,lwd=1)
 )
 print(cent_plot2)
 
