@@ -1,136 +1,60 @@
 library(tidyverse); theme_set(theme_bw())
 
 ensemble_J <- read_csv("./data/juul1.csv", col_names = FALSE) ## the columns are the trajs
-envdat <- readRDS("envdat.rds")
 long_ensemble <- ensemble_J %>% as.matrix() %>% reshape2::melt() %>%
   rename(tvec="Var1",grp="Var2") %>% mutate(across(tvec, ~.-1))
 
-labvec <- c(AG_J50 = "AG (J=50)",
-            fda_roahd = "FBD (J=2)",
-            AG_J2_1 = "AG (J=2, nsamp=10^4)",
-            AG_J2_2 = "AG (J=2, nsamp=10^5$)",
-            juul_J2 ="Juul (J=2, nsamp=500?)"
+####
+envdat <- readRDS("envdat.rds")
+
+envdat <- (envdat
+    %>% mutate(across(method, ~ifelse(. == "fda_roahd", "fda_J2_all", .)))
+    %>% separate(method, into = c("pkg", "J", "nsamp"))
 )
 
-## envdat <- mutate(envdat, across(method, ~ labvec[.]))
+with(envdat, table(pkg, nsamp, J))
 
-# envdat_temp <- envdat 
-envdat2 <- rbind(envdat2, filter(envdat[,!(names(envdat) %in% "nsample")], method=="fda_roahd"))
-envdat_temp <- envdat2 
+## from Juul_work.rmd
+## want J to vary *slowest* but come first in the label
+nmvec <- expand.grid(e=c("lwr","upr"),
+                     q=c(50,90),
+                     J=c(2, 5, 10, 20, 30, 40, 50)) %>%
+    apply(1, function(x) paste(rev(x), collapse="_")) %>%
+    trimws()
+juul1 <- read_csv("data/juul_boundary1.csv", col_names = FALSE) %>%
+    setNames(nmvec) %>%
+    mutate(data.tvec = 0:(n()-1)) %>%
+    pivot_longer(-data.tvec) %>%
+    ## make it look like envdat
+    separate(name, into = c("J","quantile","bound")) %>%
+    filter(bound=="upr", quantile=="90") %>%
+    transmute(pkg = "Juul", J = paste0("J",J), data.tvec = data.tvec,
+              data.upr = value, nsample = 500)
+              
 
-envdat_temp <- envdat  %>%
-    mutate(across(nsample, ~factor(replace_na(., 0)))) %>%
-    mutate(across(method, factor,
-                  levels=names(labvec),
-                  labels = labvec))
-
-## cent_plot2 <- (ggplot(envdat_temp, aes(tvec))
-##                + geom_ribbon(aes(ymin=lwr,ymax=upr,fill=method,colour=method),alpha=0.4,lwd=1)
-## ) + facet_wrap(~nsample)
-## print(cent_plot2)
-
-ggplot(envdat_temp, aes(x = tvec, y = upr,
-                        colour = method, linetype = factor(nsample))) +
-    geom_line()
-
-cent_plot2 <- (ggplot(envdat_temp, aes(data.tvec))
-               + geom_ribbon(aes(ymin=data.lwr,ymax=data.upr,fill=method,colour=method),alpha=0.4,lwd=1)
-)
-print(cent_plot2)
-
-# ###################################
-# # 3- do roahd and fda give similar curves?
-# ###################################
-# envelope_list <- list()
-# 
-# ## fda
-# ff_fda <-fda::fbplot(as.matrix(ensemble_J),method='MBD',ylim=c(0,1000))
-# 
-# envelope_list <- c(envelope_list,
-#                    list(fda_fda=get_envelope(ensemble_J, ff_fda$depth>median(ff_fda$depth))))
-# ## roahd
-# fD <- fData(tvec,as.matrix(t(ensemble_J))) 
-# ff_roahd <-roahd::fbplot(fD,method='MBD', plot=FALSE, 
-#                          outliercol = 2,
-#                          fullout = FALSE,
-#                          outline=FALSE
-# )
-# ## The following gives a uniroot() error! not sure at this point.
-# # ff_roahd <-roahd::fbplot(fD,method='MBD', plot=FALSE, 
-# #                          adjust = list( N_trials = 10,
-# #                                         trial_size = 2 * fD$N,
-# #                                         VERBOSE = TRUE ),
-# #                          # outliercol = 2,
-# #                          fullout = FALSE,
-# #                          outline=FALSE
-# # )
-# 
-# envelope_list <- c(envelope_list,
-#                    list(fda_roahd=get_envelope(ensemble_J, ff_roahd$Depth>median(ff_roahd$Depth))))
-# 
-# envdat <- dplyr::bind_rows(envelope_list, .id="method")
-# theme_set(theme_bw())
-# labvec <- c(fda_fda = "FBD\n(fda)",
-#             fda_roahd = "FBD\n(roahd)")
-# 
-# envdat <- mutate(envdat, across(method, ~ labvec[.]))
-# 
-# envdat_temp <- envdat 
-# cent_plot2 <- (ggplot(envdat_temp, aes(tvec))
-#                + geom_ribbon(aes(ymin=lwr,ymax=upr,fill=method,colour=method),alpha=0.4,lwd=1)
-# )
-# print(cent_plot2)
-# ## Conclusion: the 2 packages fda and roah gives the same results.
-# 
-# #################################################
-# ## Extra Exploration: more test (#1) on a simple and known example
-# ##i.e., explore the differences between fda() and Juul's algorithm (fir J=2) 
-# #################################################
-# envelope_list <- list()
-# ## Creating toy example with trajectories in columns  
-# tvec <- seq(1,10,length=10)
-# y1 <- ifelse(tvec<5,0,1)
-# y2 <- ifelse(tvec<6,0,1)
-# y3 <- ifelse(tvec<7,0,1)
-# y4 <- ifelse(tvec<8,0,1)
-# 
-# 
-# ens_toy <- cbind(y1,y2,y3,y4)
-# matplot(tvec,ens_toy,type="l")
-# 
-# ## fda:
-# fD <- fData(tvec,as.matrix(t(ens_toy))) 
-# 
-# ff_roahd <-roahd::fbplot(fD,method='MBD', plot=FALSE, 
-#                          outliercol = 2,
-#                          fullout = FALSE,
-#                          outline=FALSE
-# )
-# 
-# envelope_list <- c(envelope_list,
-#                    list(fda_roahd=get_envelope(ens_toy, ff_roahd$Depth>median(ff_roahd$Depth))))
-# 
-# # envelope_list$fda_roahd
-# 
-# ## Juul's algorithm with J=2 on the ens_toy:
-# set.seed(1234)
-# # EnRkTemp_J2 <- EnsRank_all(ens_toy,numSample=6,sizeSample=2)
-# EnRkTemp_J2 <- EnsRank_all2(ens_toy,numSample=6,sizeSample=2)
-# rnkmat2 <- EnRkTemp_J2[["ensembRank"]]
-# md12 <- rank(colSums(rnkmat2))
-# central_curves2 <- which(md12>quantile(md12,0.5))
-# envelope_list <- c(envelope_list,
-#                    list(AG_J2=get_envelope(ens_toy, central_curves2)))
-# 
-# envdat <- dplyr::bind_rows(envelope_list, .id="method")
-# long_ensemble <- ens_toy %>% as.matrix() %>% reshape2::melt() %>%
-#   rename(tvec="Var1",grp="Var2") %>% mutate(across(tvec, ~.-1))
-# 
-# ggplot(envdat, aes(tvec)) + 
-#   geom_ribbon(aes(ymin=lwr,ymax=upr), colour=NA,alpha=0.4, fill="blue") +
-#   facet_wrap(~method) + 
-#   geom_line(data=long_ensemble, aes(y=value,group=grp), alpha=0.05)
-#  
+## replicate fda data in the J50 facet, for comparison
+envdat <- bind_rows(envdat,
+(filter(envdat, pkg == "fda") %>%
+ mutate(pkg = "fda_fake", J = "J50")))
+ 
 
 
+ggplot(envdat, aes(data.tvec, data.upr)) +
+    geom_line(aes(colour=pkg, linetype = nsamp)) +
+    facet_wrap(~J) +
+    scale_colour_brewer(palette="Dark2")
 
+juul1B <- bind_rows(juul1 ,
+                    filter(envdat, pkg == "fda")) %>%
+    mutate(across(J, ~as.numeric(gsub("J","",.))))
+
+ggplot(juul1B, aes(data.tvec, data.upr)) +
+    geom_line(aes(colour=J, group=interaction(J,pkg), linetype=pkg))
+
+
+## conclusions: 
+
+## * in general Juul results may be shifted by 1 index point relative to AG results
+## (unimportant)
+## * for J=50, AG & Juul agree very well
+## * for J=2, AG & Juul agree pretty well (I'm not too worried about discrepancies here)

@@ -87,10 +87,24 @@ ff <- fbplot(fD,method='MBD', plot=FALSE,
              ylab = "Newly hospitalized"
              )
 ## if plot=false, it outputs the calculations and scores
+## get 90% boundaries
+fda_new <- get_envelope(ensemble_J, ff$Depth>quantile(ff$Depth, 0.1))
+write.csv(fda_new, file = "data/fda_new.csv", row.names=FALSE)
 
 envelope_list <- c(envelope_list,
-                   list(fda=get_envelope(ensemble_J, ff$Depth>median(ff$Depth))))
+                   list(fda=fda_new))
+## get_envelope(ensemble_J, ff$Depth>median(ff$Depth))))
 
+library(fda)
+fbplot_env <- list()
+tvec <- 0:149
+for (m in c("BD2", "MBD", "Both")) {
+    ## fda::fbplot can't handle tibbles
+    ff <- fbplot(as.data.frame(ensemble_J), x = tvec, plot=FALSE, method=m)
+    fbplot_env[[m]] <- get_envelope(ensemble_J, ff$depth>quantile(ff$depth, 0.1))
+}
+fbplot_env <- dplyr::bind_rows(fbplot_env, .id="method")
+write.csv(fbplot_env, file = "data/fbplot.csv", row.names=FALSE)
 ###################################
 ## Mahalanobis probes on Juul's data
 ###################################

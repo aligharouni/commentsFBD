@@ -1,0 +1,127 @@
+---
+title: "curve boxplots"
+---
+
+Data files:
+
+* `juul1.csv`: 150 x 500; full ensemble of Juul simulation trajectories
+* `envdat.rds`: all envelope results for 
+   * AG x nsamp = {100, 1000} x J = {2, 50}
+   * Juul x nsamp = {100, 1e4} x J = {2, 50}
+   * fda: J=2, all comparisons?
+* `juul_boundary1.csv`: runs with Juul code with J = {2, 5, 10, 20, 30, 40, 50}
+* `fda_new.csv`: roahd FDA with 90% rather than 50% quantiles
+
+
+```{r pkgs, message=FALSE}
+library(tidyverse); theme_set(theme_bw())
+library(colorspace)
+## library(directlabels)
+library(cowplot)
+```
+
+```{r get_data}
+ensemble_J <- read_csv("./data/juul1.csv", col_names = FALSE,
+                       col_types = cols()) ## the columns are the trajs
+long_ensemble <- ensemble_J %>% as.matrix() %>% reshape2::melt() %>%
+  rename(tvec="Var1",grp="Var2") %>% mutate(across(tvec, ~.-1))
+
+envdat <- readRDS("envdat.rds")
+envdat <- (envdat
+    %>% filter(method!="fda_roahd") 
+    %>% separate(method, into = c("pkg", "J", "nsamp"))
+    %>% mutate(across(J, ~as.integer(gsub("J","",.))))
+    %>% dplyr::select(pkg, J, nsample, tvec = data.tvec, upr = data.upr)
+)
+
+## FIXME: rerun CurveBoxplot.R so this is properly integrated into envdat
+fda_new <- read_csv("data/fda_new.csv", col_types = cols()) %>%
+    mutate(pkg="roahd", J = 2, nsample = Inf, .before = 1) %>%
+    dplyr::select(pkg, J, nsample, tvec, upr)
+envdat  <- envdat %>% bind_rows(envdat, fda_new)
+
+fbplot <- read_csv("data/fbplot.csv", col_types = cols()) %>%
+    mutate(pkg="fda", J = 2, nsample = Inf, .before = 1) %>%
+    dplyr::select(pkg, method, J, nsample, tvec, upr)
+
+with(envdat, table(pkg, nsample, J))
+
+## from Juul_work.rmd
+## want J to vary *slowest* but come first in the label
+nmvec <- expand.grid(e=c("lwr","upr"),
+                     q=c(50,90),
+                     J=c(2, 5, 10, 20, 30, 40, 50)) %>%
+    apply(1, function(x) paste(rev(x), collapse="_")) %>%
+    trimws()
+juul1 <- read_csv("data/juul_boundary1.csv", col_names = FALSE,
+                  col_types = cols()) %>%
+    setNames(nmvec) %>%
+    mutate(data.tvec = 0:(n()-1)) %>%
+    pivot_longer(-data.tvec) %>%
+    ## make it look like envdat
+    separate(name, into = c("J","quantile","bound"), convert = TRUE) %>%
+    filter(bound=="upr", quantile==90) %>%
+    transmute(pkg = "Juul", J = J, tvec = data.tvec,
+              upr = value, nsample = 500)
+              
+
+## replicate fda data in the J50 facet, for comparison
+envdat <- bind_rows(envdat,
+(filter(envdat, pkg == "roahd") %>%
+ mutate(pkg = "roahd_fake", J = 50)))
+
+comp_data <- (envdat
+    %>% group_by(pkg)
+    %>% filter(nsample==max(nsample), J==2)
+    %>% ungroup()
+    %>% bind_rows(fbplot)
+    %>% replace_na(replace = list(method = "default"))
+    %>% mutate(across(method, ~ relevel(factor(.), ref="default")))
+)
+``` 
+
+```{r plot1, fig.width=10}
+gg0 <- ggplot(envdat, aes(tvec, upr)) +
+    geom_line(aes(colour=pkg, linetype = as.character(nsample))) +
+    scale_colour_brewer(palette="Dark2")
+print(gg0 + facet_wrap(~J, labeller=label_both))
+```
+
+Here the `roahd::fda()` results are replicated in the `J=50` panel for comparison (even though `roahd::fda()` uses J=2). The sample size is indicated as `Inf` because (I think) it uses all possible pairs.
+
+```{r plot2, fig.width=10}
+juul1B <- bind_rows(juul1 ,
+                    filter(envdat, pkg == "roahd"))
+gg2A <- ggplot(juul1B, aes(tvec, upr)) +
+    geom_line(aes(colour=factor(J), group=interaction(J,pkg), linetype=pkg)) +
+    ## reverse: high-to-low to match line order
+    ## scale_colour_continuous(breaks = unique(juul1B$J)) +
+    ## discrete colours best for distinguishing
+    scale_colour_discrete()
+    ## geom_dl(aes(label=J), method = "top.bumpup") +
+    ## guides(colour = guide_legend())
+gg2B <- gg0 %+% filter(envdat, J==50, pkg != "roahd_fake") +
+    annotate(geom="text",y=600,x=25,label="all J=50") +
+    expand_limits(y=max(juul1B$upr))
+cowplot::plot_grid(gg2A, gg2B)
+```
+
+This plot repeats the right-hand panel of the previous graph (approximately), for comparison.
+
+
+One more comparison, of all methods for J=2 (with max sample sizes)
+
+```{r plot3}
+ggplot(comp_data, aes(tvec, upr)) +
+    geom_line(aes(colour=pkg, linetype = method))
+```
+
+All three of the `fda::fbplot()` methods for tie-breaking etc. (band depth, modified band depth, combo) appear to give identical results here.
+
+## Conclusions (so far)
+
+* after correction (using 90% instead of 50% percentile regions for `roahd::fda()` results) match the J=2 results pretty well in general, although both Juul and AG identify an earlier peak as being part of the central set while roahd doesn't
+* in general Juul results may be shifted by 1 index point relative to AG results
+(unimportant)
+* I'm a puzzled/worried about the J=50 results. The left of figure 2 (results from a previous set of Juul code runs (in `Juul_work.Rmd`, in comments) with a wide range of J values) doesn't appear to match the right (running Juul and AG code with J=50 and different numbers of samples). In the lefthand panel, there is a systematic effect of increasing J (smaller central regions/lower curves), but it's not very big - much smaller than the implied J=2 vs J=50 comparison from the previous figure. I thought that 90% regions were being used throughout, but maybe I was wrong - maybe these were all supposed to be 50% intervals. However, the first figure uses only data from `envdat.rds` (which should be consistent?)  Is it possible that you accidentally got 50% intervals for the J=50 case???
+* the differences among existing FB package implementations (`roahd::fda()` and `fda::fbplot()`) are small but not negligible; they appear to be about the same order as the differences between Juul and AG or between Juul/AG and fda/roahd.
