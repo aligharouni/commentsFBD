@@ -31,7 +31,7 @@ n_traj <- ncol(ensemble_J)
 ## the centrality of curves was ranked in different ways: all-or-nothing ranking for the full predicted time interval, Ncurves = 50 and Nsamples = 100
 ###################################
 set.seed(1234)
-nSample = c(100,1000)
+nSample = c(100,1000,10000)
 sSample =c(2,50)
 ## NON-PARALLELIZED APPROACH
 # for (n in nSample){
@@ -77,7 +77,7 @@ envelope_list_temp <-
     EnRkTemp_J <- EnsRank_all(ensemble_J, numSample=n, sizeSample=j)
     rnkmat <- EnRkTemp_J[["ensembRank"]] ## take the resulted rank mat
     md1 <- rank(colSums(rnkmat)) ## , ties="random")
-    central_curves <- which(md1>quantile(md1,0.5))
+    central_curves <- which(md1>quantile(md1,0.1))
     ## return a list
     c(data = get_envelope(ensemble_J, central_curves), 
       nsample = n,
@@ -97,23 +97,6 @@ for (j1 in 1:length(sSample)){
 
 parallel::stopCluster(cl = my.cluster)                   
 
-## Delete?
-###################################
-## ckeck: 1- Juul's algorithm with J=2 and fda match?
-# set.seed(1234)
-# ## BMB: parallelize??
-# nsamp <- c(10000,100000)
-# i <- 1
-# EnRkTemp_J2 <- EnsRank_all2(ensemble_J, numSample=nsamp[i], sizeSample=2)
-# ## note numSample in fbplot is choose(500,2)
-# rnkmat2 <- EnRkTemp_J2[["ensembRank"]]
-# md12 <- rank(colSums(rnkmat2))
-# central_curves2 <- which(md12>quantile(md12,0.5))
-# envelope_list <- c(envelope_list,
-#                      list(AG_J2_1=cbind(get_envelope(ensemble_J, central_curves2),
-#                                      nsample=rep.int(nsamp[i],length(tvec)))
-#                           )) 
-
 ###################################
 ## Functional Boxplot (FDA) on Juul's data
 ###################################
@@ -130,7 +113,7 @@ ff <- roahd::fbplot(fD,method='MBD', plot=FALSE,
              ylab = "Newly hospitalized"
 )
 
-envelope_list[["fda_roahd"]] <- c( data = get_envelope(ensemble_J, ff$Depth>median(ff$Depth)),
+envelope_list[["fda_roahd"]] <- c( data = get_envelope(ensemble_J, ff$Depth>quantile(ff$Depth, 0.1)),
                                    nsample = choose(500,2),
                                    J = 2 )
 
@@ -146,8 +129,8 @@ populate_envlist <- function(J, sampsize){
   bnds_juul <- data_frame(read_csv(paste("./data/juul_boundary_ss",sampsize,".csv", sep = ""), col_names = TRUE))
   name <- paste("Juul_J",J,"_",sampsize, sep = "")
   ## note adding 0 to the end of the lwr and upr, since mismatch with length of tvec
-  b_lwr <- paste(J,"b_lwr50",sep = "_")
-  b_upr <- paste(J,"b_upr50",sep = "_")
+  b_lwr <- paste(J,"90","lwr",sep = "_")
+  b_upr <- paste(J,"90","upr",sep = "_")
   out <- c( data = data.frame(tvec=tvec, 
             lwr=c(as.numeric(bnds_juul %>% pull(b_lwr)),0), 
             upr=c(as.numeric(bnds_juul %>% pull(b_upr)),0)),

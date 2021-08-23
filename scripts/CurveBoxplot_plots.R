@@ -29,7 +29,7 @@ juul1 <- read_csv("data/juul_boundary1.csv", col_names = FALSE) %>%
     separate(name, into = c("J","quantile","bound")) %>%
     filter(bound=="upr", quantile=="90") %>%
     transmute(pkg = "Juul", J = paste0("J",J), data.tvec = data.tvec,
-              data.upr = value, nsample = 500)
+              data.upr = value, nsample = 1000)
               
 
 ## replicate fda data in the J50 facet, for comparison
@@ -46,7 +46,7 @@ ggplot(envdat, aes(data.tvec, data.upr)) +
 
 juul1B <- bind_rows(juul1 ,
                     filter(envdat, pkg == "fda")) %>%
-    mutate(across(J, ~as.numeric(gsub("J","",.))))
+  mutate(across(J, ~as.numeric(gsub("J","",.))))
 
 ggplot(juul1B, aes(data.tvec, data.upr)) +
     geom_line(aes(colour=J, group=interaction(J,pkg), linetype=pkg))

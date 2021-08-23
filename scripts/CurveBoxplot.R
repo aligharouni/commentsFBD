@@ -100,7 +100,7 @@ fbplot_env <- list()
 tvec <- 0:149
 for (m in c("BD2", "MBD", "Both")) {
     ## fda::fbplot can't handle tibbles
-    ff <- fbplot(as.data.frame(ensemble_J), x = tvec, plot=FALSE, method=m)
+    ff <- fda::fbplot(as.data.frame(ensemble_J), x = tvec, plot=FALSE, method=m)
     fbplot_env[[m]] <- get_envelope(ensemble_J, ff$depth>quantile(ff$depth, 0.1))
 }
 fbplot_env <- dplyr::bind_rows(fbplot_env, .id="method")
@@ -134,7 +134,7 @@ for (i in 1:(n_traj-1)) {
 
 mahalmat <- make_symm(mahalmat)
 md_mah <- rank(rowMeans(mahalmat))
-central_curves_mah <- which(md_mah<quantile(md_mah,0.5))
+central_curves_mah <- which(md_mah<quantile(md_mah,0.5)) 
 
 envelope_list <- c(envelope_list,
                    list(mahal=get_envelope(ensemble_J, central_curves_mah)))

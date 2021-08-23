@@ -6,10 +6,10 @@ Data files:
 
 * `juul1.csv`: 150 x 500; full ensemble of Juul simulation trajectories
 * `envdat.rds`: all envelope results for 
-   * AG x nsamp = {100, 1000} x J = {2, 50}
+   * AG x nsamp = {100, 1000, 1e4} x J = {2, 50}
    * Juul x nsamp = {100, 1e4} x J = {2, 50}
-   * fda: J=2, all comparisons?
-* `juul_boundary1.csv`: runs with Juul code with J = {2, 5, 10, 20, 30, 40, 50}
+   * fda: J=2, all comparisons
+* `juul_boundary1.csv`: runs with Juul code with J = {2, 5, 10, 20, 30, 40, 50} x nsamp = 1000
 * `fda_new.csv`: roahd FDA with 90% rather than 50% quantiles
 
 
@@ -48,21 +48,15 @@ with(envdat, table(pkg, nsample, J))
 
 ## from Juul_work.rmd
 ## want J to vary *slowest* but come first in the label
-nmvec <- expand.grid(e=c("lwr","upr"),
-                     q=c(50,90),
-                     J=c(2, 5, 10, 20, 30, 40, 50)) %>%
-    apply(1, function(x) paste(rev(x), collapse="_")) %>%
-    trimws()
-juul1 <- read_csv("data/juul_boundary1.csv", col_names = FALSE,
-                  col_types = cols()) %>%
-    setNames(nmvec) %>%
+
+juul1 <- read_csv("data/juul_boundary1.csv", col_names = TRUE) %>%
     mutate(data.tvec = 0:(n()-1)) %>%
     pivot_longer(-data.tvec) %>%
     ## make it look like envdat
     separate(name, into = c("J","quantile","bound"), convert = TRUE) %>%
     filter(bound=="upr", quantile==90) %>%
     transmute(pkg = "Juul", J = J, tvec = data.tvec,
-              upr = value, nsample = 500)
+              upr = value, nsample = 1000)
               
 
 ## replicate fda data in the J50 facet, for comparison
