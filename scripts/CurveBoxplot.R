@@ -15,6 +15,8 @@ library(Cairo)
 library(ggrastr)
 library(tikzDevice)
 
+do_mahal <- FALSE
+
 ## Placeholder to save the method specific envelopes including Juul's work, L2, FBP, Mahalonobis on probes.
 envelope_list <- list()
 
@@ -40,7 +42,8 @@ md1 <- rank(colSums(rnkmat)) ## , ties="random")
 plot(sort(md1)) ## Note the discontinuity!?
 ## Discontinuity is due to ties; if ties were broken with 'random' this
 ## would go away
-central_curves <- which(md1>quantile(md1,0.5))
+## we want *RANKS* > 0.1 quantile to get 90% central region
+central_curves <- which(md1 > quantile(md1,0.1))
 
 envelope_list <- c(envelope_list,
                    list(juul=get_envelope(ensemble_J, central_curves)))
@@ -105,11 +108,12 @@ for (m in c("BD2", "MBD", "Both")) {
 }
 fbplot_env <- dplyr::bind_rows(fbplot_env, .id="method")
 write.csv(fbplot_env, file = "data/fbplot.csv", row.names=FALSE)
+
 ###################################
 ## Mahalanobis probes on Juul's data
 ###################################
 
-probes_mat <-t(apply(ensemble_J,2, probes))
+probes_mat <- t(apply(ensemble_J,2, probes))
 pdf("probes_hist.pdf", width=8,height=5)
 op <- par(mfrow=c(2,3))
 for (i in 1:ncol(probes_mat)) {
@@ -134,7 +138,7 @@ for (i in 1:(n_traj-1)) {
 
 mahalmat <- make_symm(mahalmat)
 md_mah <- rank(rowMeans(mahalmat))
-central_curves_mah <- which(md_mah<quantile(md_mah,0.5)) 
+central_curves_mah <- which(md_mah < quantile(md_mah, 0.9)) 
 
 envelope_list <- c(envelope_list,
                    list(mahal=get_envelope(ensemble_J, central_curves_mah)))
@@ -159,11 +163,12 @@ envdat <- mutate(envdat, across(method, ~ labvec[.]))
 
 ## manual label positioning
 maxdat <- (envdat
-  %>% group_by(method)
-  %>% filter(upr == max(upr))
-  %>% ungroup()
-  %>% mutate(xoff = c(-30, +10, -5),
-             yoff = c(50, 70, 50))
+    %>% group_by(method)
+    %>% filter(upr == max(upr))
+    %>% ungroup()
+    ## juul (J=50) / roahd(fda) (J=2)/ mahal
+    %>% mutate(xoff = c(+40, +10, -30),
+               yoff = c(50, 70, 50))
 )
 
 cent_plot <- (ggplot(envdat, aes(tvec))
