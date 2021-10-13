@@ -1,0 +1,274 @@
+---
+title: "FBD and Machine Leaning"
+author: "Ali Gharouni"
+date: "`r format(Sys.time(),'%d %b %Y')`"
+output: html_document
+bibliography: ../AliMac.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(dev.args = list(png = list(type = "cairo")))
+```
+
+This is inspired by @juul2021fixed. 
+Retrieving and unpacking the simulated epidemic curves from
+the [curvestat repo](https://github.com/jonassjuul/curvestat/).
+
+# Introduction
+
+- **Vision:**
+  - If we have a sufficiently sensible space (metric space?), we can define the *centroid* of a set of points, which may not be a member of the set. 
+Then for a rank $r$, the 
+    (1) set of $r$ closest points to the centroid can be approximated by 
+    (2) the set of $r$ points with the minimum average distance to all of the other points. 
+  - Right now we're using the second characteristic to define the set of central points, and we're not computing the centroid - we're computing the 'most central' point in the set [i.e. the one with minimum distance to all other points, probably == the closest to the centroid]
+  - Note that aApproach (2) is metric-dependent, so what is the sensible functional metrics?
+      - We tried Fréchet, DTW [dynamic time warping](https://en.wikipedia.org/wiki/Dynamic_time_warping), L2 on the ensemble 
+      - Also we tried Mahalanobis distances on the features of the ensemble
+
+- **The Goal:** 
+  - methods to compute the central set of an ensemble of curves, a high-dimensional analogue of interquartile range or confidence interval 
+
+# Methods
+- Approaches:
+  1. Fixed-time (pointwise quantiles); \
+    can fail to capture the uncertainty in key features of an ensemble (see @juul2021fixed)
+    
+  2. Functional Depth (functional boxplot FBD for visualization);
+    - This is a ranking method (Refs: @fraiman2001trimmed,  @lopez2007depth, @lopez2009concept, @sun2011functional, @sun2012exact)
+    - Algorithm:
+      - randomly sample a subset of curves (FBD: J=2, Juul et al.: J=50 [?])
+      - compute the min-max envelopes 
+      - score individual curves based on whether they lie entirely within the envelope or not 
+      - repeat to derive a centrality score on [0,1] for each curve based on the proportion
+  
+  3. Functional depth on the features of an ensemble
+    - Juul et al used a single 1D feature (Max of a curve)
+    - We extended this to a more principled approach;  
+      - incorporate multiple features of interest,
+      - functional band depth could again be used on this reduced set of features; here we use the Mahalanobis distance (Mahalanobis, 1936; it measures distance from a centroid accounting both for variation in the scales or typical magnitudes of different features and for correlation among features.
+
+# Results
+
+Comparison of 90\% central regions computed with
+    different functional boxplot methods, using epidemic curve ensembles from @juul2021fixed. FBD = functional band distance; $J$ = number of curves used for centrality calculation. Curve with $J=2$ computed via the \texttt{roahd} package @roahd: curve with $J=50$ used our own implementation of the functional band distance algorithm described by @juul2021fixed.
+
+```{r centplot, out.height = "500px", out.width='500px', fig.align="center", echo=FALSE}
+knitr::include_graphics("cent_plot.png")
+```
+
+# Scripts
+
+```{r graph_setup, echo=FALSE}
+# setwd("/home/ag/projects/commentsFBD/scripts/")
+g_labels <- c("trajectories", "fixed-time mean",
+            "fixed-time median", "Fréchet mean","L2 mean")
+g_cols <- c("gray","blue","purple","red","green")
+```
+
+```{r packages, echo=FALSE, message=FALSE}
+library(tidyverse)
+library(SimilarityMeasures) ## for Fréchet distance computation
+source("/home/ag/projects/commentsFBD/scripts/functions.R")
+```
+
+```{r whynotfixedtime,fig.cap="Fixed-time mean/median; the pointwise mean at each time step",basefig=TRUE}
+n_sample <- 10 ## num of data points, days
+n_traj <- 20 ## number of trajectories
+t <- 1:n_sample
+set.seed(1234)
+M <- replicate(n_traj,rnorm(n_sample,mean = 0))
+matplot(x=t,y=M,type = "l", lty=1, col = g_cols[1], ylab="")
+lines(t,rowMeans(M), col = g_cols[2], lwd = 2)
+lines(t, apply(M,1,median),col=g_cols[3])
+legend("topright", legend = g_labels[1:3] , col=g_cols[1:3],
+       lty=1, bg="white")  
+```
+
+## Fréchet Norm on the toy dataset
+
+Calculate all of the pairwise Fréchet distances between trajectories:
+
+```{r frechet_dist_toy}
+dmatF <- matrix(NA, n_traj, n_traj)
+diag(dmatF) <- 0
+for (i in 1:(n_traj-1)) {
+    for (j in (i+1):n_traj) {
+        dmatF[i,j] <- Frechet(matrix(M[,i]),matrix(M[,j]))
+    }
+}
+
+dmatF <- make_symm(dmatF)
+stopifnot(isSymmetric(dmatF))
+```
+
+histogram of Fréchet dist
+
+```{r fig.cap="density plot of Fréchet distances"}
+hist(dmatF[lower.tri(dmatF)],xlab="Fréchet distance",main="",breaks=20)
+```
+
+Find the [Fréchet mean](https://en.wikipedia.org/wiki/Fr%C3%A9chet_mean) (min average distance = most central point), considering the ensemble of curves to be the entire set of possibilities
+
+```{r frechet_toy}
+## Fréchet mean corresponding to arithmetic mean: minimize sum of squares of distances
+md2F <- rowSums(dmatF^2)  
+fm2 <- which.min(md2F)
+## Fm corresponding to median: minimize sum of distances 
+md1F <- rowSums(dmatF)
+fm1 <- which.min(md1F)
+```
+
+In this case the Fréchet mean & median are the same;
+but the rankings for (sum of distances to all other curves) and (sum of squared distances) are not quite identical, so regions will differ. We'll use the 'median-like' criterion (sum of distances).
+
+```{r fcor}
+cor.test(md1F,md2F,method="spearman")$estimate
+```
+
+Find the envelope of trajectories with the most central 50% (is this right??)
+
+```{r find_envelope}
+central_curvesF <- which(md1F<quantile(md1F,0.5))
+## POINTWISE min/max of these curves (?)
+fminF <- apply(M[,central_curvesF],1,min)
+fmaxF <- apply(M[,central_curvesF],1,max)
+```
+
+Compute pointwise central 50% quantiles for comparison:
+```{r pointquant_toy}
+pqmin <- apply(M,1,quantile,0.25)
+pqmax <- apply(M,1,quantile,0.75)
+```
+
+```{r plot_all,basefig=TRUE,fig.cap="fixed-time and Fréchet metrics: gray (wide)=50% central Fréchet region, green (narrow)=fixed-time central region"}
+matplot(x=t,y=M,type = "l", col = g_cols[1], lty=1,ylim=c(-5,5))
+lines(t,rowMeans(M), col = g_cols[2], lwd = 2)
+lines(t,apply(M,1,median), col = g_cols[3], lwd = 2)
+lines(t,M[,fm1], col = g_cols[4], lwd = 2) # red
+polygon(c(t,rev(t)),c(fminF,rev(fmaxF)), col=adjustcolor("red",alpha.f=0.2),
+        border=NA)
+polygon(c(t,rev(t)),c(pqmin,rev(pqmax)), col=adjustcolor("blue",alpha.f=0.2),
+        border=NA)
+legend("topright", legend = g_labels,
+       col= g_cols, lty=1, bg="white")       
+```
+
+The region here (which is supposed to represent the central 50% of the sample) seems a bit odd; the Fréchet envelope (in black) is much wider than the pointwise 50% range (in green). Maybe that's as expected?
+
+The Fréchet distance is a natural choice given that we are working with curves, but there's no reason that we have to use that distance metric: the Fréchet **mean** (and associated concepts of centrality) is (IMO) more important than the choice of distance metric. For example, we could use a Mahalanobis distance on the time points (although this doesn't include any information, e.g., about the time-ordering of the points, which seems weird?), or the Mahalanobis distance of a set of epidemiologically relevant metrics (e.g. {peak time, peak height, time to 5% of cumulative infection, epidemic duration}).
+
+---
+
+## L2 Norm on the toy dataset
+
+```{r l2onM}
+dmatl2 <- matrix(NA, n_traj, n_traj) ## Euclidean L2 norm
+dmatl2 <- as.matrix(dist(t(M), method = "euclidean", diag = TRUE, upper = TRUE, p = 2))
+```
+
+```{r l2mean_mediantoy}
+## l2 mean corresponding to arithmetic mean: minimize sum of squares of distances
+md2l2 <- rowSums(dmatl2^2)  
+l2m2 <- which.min(md2l2)
+## corresponding to median: minimize sum of distances 
+md1l2 <- rowSums(dmatl2)
+l2m1 <- which.min(md1l2)
+```
+
+Find the envelope of trajectories with the most central 50% (is this right??)
+
+```{r find_envelope_toy}
+central_curves_l2 <- which(md1l2<quantile(md1l2,0.5))
+## POINTWISE min/max of these curves (?)
+l2min <- apply(M[,central_curves_l2],1,min)
+l2max <- apply(M[,central_curves_l2],1,max)
+```
+
+```{r plot_all2,basefig=TRUE,fig.cap="fixed-time and Fréchet metrics: gray (wide)=50% central Fréchet region, green (narrow)=fixed-time central region"}
+matplot(x=t,y=M,type = "l", col = g_cols[1], lty=1,ylim=c(-5,5))
+lines(t,rowMeans(M), col = g_cols[2], lwd = 2)
+lines(t,apply(M,1,median), col = g_cols[3], lwd = 2)
+lines(t,M[,fm1], col = g_cols[4], lwd = 2) # red
+lines(t,M[,l2m1], col = g_cols[5], lwd = 2) # yellow
+polygon(c(t,rev(t)),c(l2min,rev(l2max)), col=adjustcolor("green",alpha.f=0.2),
+        border=NA)
+polygon(c(t,rev(t)),c(fminF,rev(fmaxF)), col=adjustcolor("red",alpha.f=0.2),
+        border=NA)
+polygon(c(t,rev(t)),c(pqmin,rev(pqmax)), col=adjustcolor("blue",alpha.f=0.2),
+        border=NA)
+legend("topright", legend = g_labels,
+       col= g_cols, lty=1, bg="white")       
+```
+
+---
+## Juul's dataset
+
+
+### Adding FDB with L2 Norm
+
+```{r plot_juul, message=FALSE, echo=FALSE}
+M <- (read_csv("../scripts/data/juul1.csv", col_names = FALSE)) ## the columns are the trajs
+MJ <- as.matrix(M)
+par(las=1,bty="l")
+matplot(MJ,type="l",col=adjustcolor("black",alpha.f=0.2), lty=1,
+        ylab="")
+```
+
+## L2 Norm
+
+```{r pointwiseL2}
+n_traj <- ncol(M)
+t <- 1:nrow(M)
+
+dmatl2 <- matrix(NA, n_traj, n_traj) ## Euclidean L2 norm
+system.time(
+dmatl2 <- as.matrix(dist(t(M), method = "euclidean", diag = TRUE, upper = TRUE, p = 2))
+)
+# write.table(dmat_l2,"./data/dmat_juul_l2.csv",sep=",",row.names = FALSE, col.names = FALSE)
+
+```
+
+```{r l2mean_median}
+## l2 mean corresponding to arithmetic mean: minimize sum of squares of distances
+md2 <- rowSums(dmatl2^2)  
+l2_m2 <- which.min(md2)
+## corresponding to median: minimize sum of distances 
+md1 <- rowSums(dmatl2)
+l2_m1 <- which.min(md1)
+```
+
+```{r l2cor}
+cor.test(md1,md2,method="spearman")$estimate
+```
+Find the envelope of trajectories with the most central 50% (is this right??)
+
+```{r find_envelopeJuul}
+central_curves_l2 <- which(md1<quantile(md1,0.5))
+## POINTWISE min/max of these curves (?)
+fmin_l2 <- apply(M[,central_curves_l2],1,min)
+fmax_l2 <- apply(M[,central_curves_l2],1,max)
+```
+
+Compute pointwise central 50% quantiles for comparison:
+```{r pointquant}
+pqmin <- apply(M,1,quantile,0.25)
+pqmax <- apply(M,1,quantile,0.75)
+```
+
+```{r plot_allJuul,basefig=TRUE,fig.cap="fixed-time and l2 metrics: gray (wide)=50% central l2 region, green (narrow)=fixed-time central region"}
+matplot(x=t,y=M,type = "l", col = g_cols[1], lty=1,ylim=c(0,800))
+lines(t,rowMeans(M), col = g_cols[2], lwd = 2)
+lines(t,apply(M,1,median), col = g_cols[3], lwd = 2)
+lines(t,pull(M,l2_m1), col = g_cols[4], lwd = 2)
+polygon(c(t,rev(t)),c(fmin_l2,rev(fmax_l2)), col=adjustcolor("black",alpha.f=0.2),
+        border=NA)
+polygon(c(t,rev(t)),c(pqmin,rev(pqmax)), col=adjustcolor("green",alpha.f=0.2),
+        border=NA)
+legend("topright", legend = g_labels,
+       col= g_cols, lty=1, bg="white")       
+```
+
+# ML?
+
+# References
