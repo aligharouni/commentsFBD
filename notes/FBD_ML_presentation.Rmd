@@ -57,7 +57,7 @@ Comparison of 90\% central regions computed with
 knitr::include_graphics("cent_plot.png")
 ```
 
-# Scripts
+# Implementation (R codes)
 
 ```{r graph_setup, echo=FALSE}
 # setwd("/home/ag/projects/commentsFBD/scripts/")
@@ -160,7 +160,9 @@ The Fréchet distance is a natural choice given that we are working with curves,
 
 ---
 
-## L2 Norm on the toy dataset
+## $L_2$ Norm on the toy dataset
+
+$L_2$ norm, captures the area between curves.
 
 ```{r l2onM}
 dmatl2 <- matrix(NA, n_traj, n_traj) ## Euclidean L2 norm
@@ -199,6 +201,28 @@ polygon(c(t,rev(t)),c(pqmin,rev(pqmax)), col=adjustcolor("blue",alpha.f=0.2),
         border=NA)
 legend("topright", legend = g_labels,
        col= g_cols, lty=1, bg="white")       
+```
+
+### Shortcomings of Fréchet and DTW 
+
+These two norms, do not detect horizontal shift, see the following example.
+Also L_2 norm does so poorly in capturing main features of the ensemble.
+
+```{r cons_FrechDTW, echo=FALSE}
+tvectmp <- seq(0,10,length=101)
+y1tmp <- ifelse(tvectmp<5,0,1)
+y2tmp <- ifelse(tvectmp<5.5,0,1)
+matplot(tvectmp,cbind(y1tmp,y2tmp),type="l")
+max(abs(y1tmp-y2tmp))
+Frechet(matrix(y1tmp),matrix(y2tmp))
+DTW(matrix(y1tmp),matrix(y2tmp), pointSpacing=0)
+## functional data Ana
+library("fda")
+library("roahd")
+
+fD_temp <- fData(tvectmp,as.matrix(rbind(y1tmp,y2tmp) )) ## note that the trajs are on rows in fD object
+fbplot(fD_temp,method='MBD') ## plot the central envelope
+
 ```
 
 ---
@@ -270,5 +294,9 @@ legend("topright", legend = g_labels,
 ```
 
 # ML?
+
+There are a few recent ML works on FDA (functional depth analysis);  
+@wynne2021statistical; Kernel Mean Embeddings approach.
+@perdices2021deep; Neural networks approach to characterize the time series. 
 
 # References

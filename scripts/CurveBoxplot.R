@@ -203,3 +203,7 @@ options(tikzMetricPackages = c("\\usepackage[utf8]{inputenc}","\\usepackage[T1]{
        standAlone = TRUE,
        width = 6, height = 6, units = "in")
 
+ ggsave(cent_plot,
+        device = "png",
+        filename = "cent_plot.png",
+        width = 6, height = 6, units = "in")

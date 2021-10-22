@@ -11,4 +11,6 @@ scripts/cent_plot.pdf: scripts/cent_plot.tex
 scripts/cent_plot.tex: scripts/CurveBoxplot.R
 	cd scripts; R CMD BATCH --vanilla CurveBoxplot.R
 
-
+## New submission to PeerJ Life & Environment
+curveBP_peerJ.pdf: curveBP_peerJ.tex scripts/cent_plot.pdf
+	texi2dvi -p curveBP_peerJ.tex
