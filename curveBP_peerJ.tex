@@ -39,17 +39,13 @@ In this work, we explore \juul curve-based statistical approach in more depth wh
 
 \section*{Methods}
 
-In this work, we first implimented \juul's primary sampling-based method for determining a curve's centrality which in nature is similar to FBD. In particular, the algorithm involves the following steps and was implemented in R (\todo {ref}).
-(i) a subset of curves was randomly sample from the ensemble (FBD: J=2, Juul et al.: J=50), (ii) compute the sample-specific min-max envelopes, (iii) score individual curves based on whether they lie entirely within the envelope or not, and (vi) repeat to derive a centrality score on [0,1] for each curve based on the proportion. We present the comparison of 90\% central regions computed with different functional boxplot methods.
+In our exploration, we present the comparison of 90\% central regions computed with different functional boxplot methods.
+First, we implemented \juul's primary sampling-based method in R \citep{R} for determining a curve's centrality which in nature is similar to FBD with minor differences in sample size and number of samples. In particular, the implemented algorithm involves the following steps. (i) a subset of curves was randomly sample from the ensemble (FBD: J=2, \juul : J=50), (ii) compute the sample-specific min-max envelopes, (iii) score individual curves based on whether they lie entirely within the envelope (thus, score=1) or not (thus, score=0), and (vi) repeat to derive a centrality scoring or "rank" on [0,1] for each curve based on the proportion. In particular, the curve-specific rank is estimated by the 'median-like' criterion (sumation of scores). In order to characterize and plot the "central region", we assume that the most central curves are the ones with their ranks > 0.1 quantile to get 90\% central region. 
 
-Secondly, the following feature vector of interests were chosen for each curve in the ensemble; 
-(i) the peak value of incidence (new infections), 
-(ii) the time at which the peak occurs, 
-(iii) the initial growth rate, 
-(iv) epidemic duration, and 
-(v) final size of the epidemic.
-Specifically, the peak was determined by the global maximum of a curve. The initial growth rate was estimated by fitting an exponential function to the section of the curve starting from the first day of nonzero prevalence to the day when the prevalence is 10\%. 
-The epidemic duration was determinded by the time between 10\% and 90\% prevalence cumulative cases. The final size was given by the integration of the curve over time.
+Secondly, we used the function fda() in R \citep{R} package \pkg{roahd} \citep{roahd}, with the choice of modified band depth (MBD) to break ties which is based on the fast algorithm proposed by \cite{sun2012exact}. Likewise the implemented method, the curve-specific ranks are sorted and the "central" region was ploted. 
+
+Thirdly, for an individual curve in the ensemble, a feature vector was assigned. The curves are ranked according to thier feature vector. Specifically, we used mahalanobis() in stats package \needref to compute the pairwise Mahalanobis distance between the features of two curves with the covariance matrix from the entire data set as the scaling factor. This is because we can't compute the covariance matrix for only two samples. In this case, the rank of each curve is the average distance to the rest of the set. The 90\% central region is considered as curves with ranks < 0.9 quantile. Note that, the following features of interest were chosen for each curve in the ensemble; (i) the peak value of incidence (new infections), (ii) the time at which the peak occurs, (iii) the initial growth rate, (iv) epidemic duration, and (v) final size of the epidemic. Specifically, the peak was determined by the global maximum of a curve on its domain. The initial growth rate was estimated by fitting an exponential function to the section of the curve starting from the first day of nonzero prevalence to the day when the prevalence is 10\%. The epidemic duration was determinded by the time between 10\% and 90\% prevalence cumulative cases. The final size was given by the integration of the curve over time.
+
 
 
 
@@ -68,6 +64,8 @@ The epidemic duration was determinded by the time between 10\% and 90\% prevalen
 % this is discussion:
 % While \juul do cite this literature \citep{sun2011functional}, exploring it in more depth led us to several useful practical and theoretical points that could be useful for researchers interested in using these approaches. 
 
+
+We note that one potential problem with Mahalanobis distances is if (for example) the feature distribution is strongly bimodal, then scaling factors/correlations derived from the overall data set may not be appropriate for scaling the components of distance between two trajectories whose features put them in the same mode/component of the distribution.
 
 \section*{Conclusions}
 

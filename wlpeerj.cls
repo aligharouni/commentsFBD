@@ -241,4 +241,5 @@ THE ABSTRACT\vskip12pt}\let\go\relax\fi
 \newcommand{\ali}[1]{\comment{magenta}{Ali}{#1}}
 \newcommand{\bmb}[1]{\comment{red}{BMB}{#1}}
 \newcommand{\todo}[1]{\comment{red}{TODO}{#1}}
+\newcommand{\needref}{\textcolor{red}{(REFS?)}}
 
