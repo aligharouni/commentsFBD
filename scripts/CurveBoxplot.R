@@ -2,7 +2,7 @@
 ## Spring 2021, UNiversity of McMaster
 ## Comparison of Juul's work with alternative centrality scoring of an epidemic ensemble.
 ## We used L2 norm, FBP and Mahalanobis on probes.
-# setwd("projects/AliMac_scripts/scripts/")
+# setwd("projects/commentsFBD/scripts/")
 source('functions.R')
 library(tidyverse)
 library(latex2exp)
@@ -66,7 +66,7 @@ m1l2 <- which.min(md1l2)
 ## Correlated mean and median?
 cor.test(md1l2,md2l2,method="spearman")$estimate
 
-central_curves_l2 <- which(md1l2<quantile(md1l2,0.5))
+central_curves_l2 <- which(md1l2<quantile(md1l2,0.9))
 ## Find the envelope, i.e., the POINTWISE min/max of the central curves
 
 envelope_list <- c(envelope_list,
@@ -143,7 +143,7 @@ central_curves_mah <- which(md_mah < quantile(md_mah, 0.9))
 envelope_list <- c(envelope_list,
                    list(mahal=get_envelope(ensemble_J, central_curves_mah)))
 
-
+envdat_full <- dplyr::bind_rows(envelope_list, .id="method") ## with L2, for supp materials?
 envelope_list <- envelope_list[names(envelope_list) != "L2norm"]
 envdat <- dplyr::bind_rows(envelope_list, .id="method")
 
