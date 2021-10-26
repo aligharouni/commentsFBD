@@ -50,23 +50,38 @@ Thirdly, for an individual curve in the ensemble, a feature vector was assigned.
 
 \section*{Results}
 
+The 90\% central regions computed with both pairwise Mahalanobis distance approach and FBD with $J=2$ are comparable with \juul's result, i.e., FBD with $J=50$. It appears that both pairwise Mahalanobis distance approach and FBD with $J=2$ identify an earlier peak as being part of the central set while in general \juul's result may be shifted by 1 index point relative to other two.
+
 \begin{figure}[ht]\centering
   \includegraphics[width=\linewidth]{scripts/cent_plot.pdf}
   \caption{Comparison of 90\% central regions computed with
-    different functional boxplot methods, using epidemic curve ensembles from \juul. FBD = functional band distance; $J$ = number of curves used for centrality calculation. Curve with $J=2$ computed via the \texttt{roahd} package \citep{roahd}: curve with $J=50$ used our own implementation of the functional band distance algorithm described by \juul.
+    different functional boxplot methods, using epidemic curve ensembles from \juul. FBD = functional band distance; $J$ = number of curves used for centrality calculation. Curve with $J=2$ computed via the \texttt{roahd} package \citep{roahd}: curve with $J=50$ used our own implementation of the functional band distance algorithm described by \juul, curve with Mahalanobis (5 features) used Mahalanobis distance on features of interest including the peak value of incidence, the time at which the peak occurs, the initial growth rate, epidemic duration, and final size of the epidemic.
   }
   \label{p.a}
 \end{figure}
  
 \section*{Discussion}
 
-In our exploration of estimating the \emph{central set} out of an ensemble of curves, we compared applying measures of centrality directly to the curves versus to features derived from the curves.
+In our exploration of estimating the \emph{central set} -- also refer to as ``centroid'' -- out of an ensemble of curves, we compared applying measures of centrality directly to the curves versus to features derived from the curves. In this work, we are computing the ``most central'' point in the set which we characterize as the point with minimum distance to all other points. The ``most central'' point is different from the concept of ``centroid''. In particular, in a space for a rank $r$, the (1) set of $r$ closest points to the centroid is can be estimated (2) the set of $r$ points with the minimum average distance to all of the other points. We note that these two concepts can be different with respect to the choice of the norm, e.g., log Euclidean norm.
 
 In our multivariate generalization of ranking the curves based on features derived from the curves, we used Mahalanobis distance on feature vectors. We note that one potential problem with Mahalanobis distances is if (for example) the feature distribution is strongly bimodal, then scaling factors/correlations derived from the overall data set may not be appropriate for scaling the components of distance between two trajectories whose features put them in the same mode/component of the distribution.
+
+We also implemented a pairwise-distance approach, i.e., pairwise distances between the curves and quantiles of centrality, as an alternative method to a sampling-based functional boxplot. In particular, we compute all pairwise distances -- here we used $\ell_2$ norm which gives the area between the two curves -- between the curves, determine the median-like distance of a curve to all others as the minimum of sum of distances, and estimate the distribution of distances. We compared the 90\% most central region using the $\ell_2$ norm with the results from sampling-based method FBD and our proposed ranking method using Mahalanobis distance among features of interest (see appendix). We concluded that pairwise-distance approach using $\ell_2$ norm underestimated the key features of epidemic ensemble such as the magnitude of epidemic peaks. Further, and alongside testing the Euclidean $\ell_2$ norm, on the pairwise curves, we considered other classic curve distances like Fréchet and dynamic time warping (DTW). It is notable that these norms ignore phase differences and sound inappropriate for the purpose of centrality measure in this dataset.
 
 \section*{Conclusions}
 
 \section*{Acknowledgments}
 
 \bibliography{./curveBP}
+
+\section*{Appendix}
+
+% FIXME: change L_2 to \ell_2
+\begin{figure}[ht]\centering
+  \includegraphics[width=\linewidth]{scripts/cent_plot2.pdf}
+  \caption{Comparison of 90\% central regions computed with
+    different functional boxplot and pairwise-distance methods, using epidemic curve ensembles from \juul. FBD = functional band distance; $J$ = number of curves used for centrality calculation. Curve with $J=2$ computed via the \texttt{roahd} package \citep{roahd}, curve with $J=50$ used our own implementation of the functional band distance algorithm described by \juul, curve with Mahalanobis (5 features) used Mahalanobis distance on features of interest including the peak value of incidence, the time at which the peak occurs, the initial growth rate, epidemic duration, and final size of the epidemic. Curve with $\ell_2$ used  pairwise $\ell_2$ distances between the curves and determinded quantiles of centrality.
+  }
+  \label{p.b}
+\end{figure}
 \end{document}
