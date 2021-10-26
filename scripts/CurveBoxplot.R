@@ -156,7 +156,7 @@ theme_set(theme_bw())
 
 labvec <- c(juul = "FBD\n($J = 50$)",
             fda = "FBD\n($J = 2$)",
-            mahal = "Mahalanobis\n(6 features)"
+            mahal = "Mahalanobis\n(5 features)"
             )
 
 envdat <- mutate(envdat, across(method, ~ labvec[.]))
