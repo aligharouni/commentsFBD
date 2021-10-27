@@ -12,10 +12,10 @@ scripts/cent_plot.pdf: scripts/cent_plot.tex
 scripts/cent_plot2.pdf: scripts/cent_plot2.tex
 	cd scripts; pdflatex cent_plot2.tex
 
-scripts/cent_plot2.tex: scripts/CurveBoxplot.R
-	cd scripts; R CMD BATCH --vanilla CurveBoxplot.R
+#scripts/cent_plot2.tex: scripts/CurveBoxplot.R
+#	cd scripts; R CMD BATCH --vanilla CurveBoxplot.R
 	
-scripts/cent_plot.tex: scripts/CurveBoxplot.R
+scripts/cent_plot.tex scripts/cent_plot2.tex: scripts/CurveBoxplot.R
 	cd scripts; R CMD BATCH --vanilla CurveBoxplot.R
 	
 ## New submission to PeerJ Life & Environment
