@@ -143,12 +143,12 @@ central_curves_mah <- which(md_mah < quantile(md_mah, 0.9))
 envelope_list <- c(envelope_list,
                    list(mahal=get_envelope(ensemble_J, central_curves_mah)))
 
-envdat_full <- dplyr::bind_rows(envelope_list, .id="method") ## with L2, for supp materials?
-envelope_list <- envelope_list[names(envelope_list) != "L2norm"]
 envdat <- dplyr::bind_rows(envelope_list, .id="method")
 
 long_ensemble <- ensemble_J %>% as.matrix() %>% reshape2::melt() %>%
     rename(tvec="Var1",grp="Var2") %>% mutate(across(tvec, ~.-1))
+
+
 
 theme_set(theme_bw())
 ## ggplot(envdat, aes(tvec)) + geom_ribbon(aes(ymin=lwr,ymax=upr),colour=NA, alpha=0.4, fill="blue") +
@@ -156,13 +156,17 @@ theme_set(theme_bw())
 
 labvec <- c(juul = "FBD\n($J = 50$)",
             fda = "FBD\n($J = 2$)",
-            mahal = "Mahalanobis\n(5 features)"
+            mahal = "Mahalanobis\n(5 features)",
+            L2norm="$\\ell_2$"
             )
 
 envdat <- mutate(envdat, across(method, ~ labvec[.]))
+## dat for plotting in the main body of the manuscript;  without L_2 norm
+envdat_sub <- envdat %>% filter(method != "$\\ell_2$") 
 
+## MAIN PLOT #######################################################
 ## manual label positioning
-maxdat <- (envdat
+maxdat <- (envdat_sub
     %>% group_by(method)
     %>% filter(upr == max(upr))
     %>% ungroup()
@@ -171,7 +175,7 @@ maxdat <- (envdat
                yoff = c(50, 70, 50))
 )
 
-cent_plot <- (ggplot(envdat, aes(tvec))
+cent_plot <- (ggplot(envdat_sub, aes(tvec))
   + geom_ribbon(aes(ymin=lwr,ymax=upr,fill=method,colour=method),alpha=0.4,lwd=1)
   + rasterise(geom_line(data=long_ensemble, aes(y=value,group=grp), alpha=0.1),
               dpi = 300)
@@ -207,3 +211,50 @@ options(tikzMetricPackages = c("\\usepackage[utf8]{inputenc}","\\usepackage[T1]{
  #        device = "png",
  #        filename = "cent_plot.png",
  #        width = 6, height = 6, units = "in")
+
+ ## APPENDIX PLOT #######################################################
+ 
+# maxdat2 <- (envdat
+#              %>% group_by(method)
+#              %>% filter(upr == max(upr))
+#              %>% ungroup()
+#              ## juul (J=50) / roahd(fda) (J=2)/ mahal / L_2
+#              %>% mutate(xoff = c(+40, +10, -30, -40),
+#                         yoff = c(50, 70, 50, 90))
+#  )
+ 
+ maxdat2 <- (envdat
+             %>% filter(method== "$\\ell_2$")
+             %>% group_by(method)
+             %>% filter(upr == max(upr))
+             %>% ungroup()
+             ## juul (J=50) / roahd(fda) (J=2)/ mahal / L_2
+             %>% mutate(xoff = c(30),
+                        yoff = c(90))
+ )
+ 
+ cent_plot2 <- ((cent_plot %+% envdat)
+                + geom_segment(data = maxdat2, aes(x = tvec + xoff, xend = tvec,
+                                                   y = upr + yoff, yend = upr,
+                                                   colour = method),
+                               width = 2)
+                ## labels after segments so segments are masked appropriately
+                + geom_label(data = maxdat2, aes(label = method,
+                                                 x = tvec + xoff,
+                                                 y = upr + yoff,
+                                                 colour = method),
+                             fill = "white",
+                             label.padding = unit(0.3, "lines"))
+ )
+ 
+ options(tikzMetricPackages = c("\\usepackage[utf8]{inputenc}","\\usepackage[T1]{fontenc}", "\\usetikzlibrary{calc}", "\\usepackage{amssymb}"))
+ ggsave(cent_plot2,
+        device = tikz,
+        filename = "cent_plot2.tex",
+        standAlone = TRUE,
+        width = 6, height = 6, units = "in")
+ 
+ 
+ 
+ 
+ 
