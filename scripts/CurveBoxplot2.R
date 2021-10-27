@@ -156,7 +156,7 @@ theme_set(theme_bw())
 
 labvec <- c(juul = "FBD\n($J = 50$)",
             fda = "FBD\n($J = 2$)",
-            L2norm="$L_2$",
+            L2norm="$\\ell_2$",
             mahal = "Mahalanobis\n(5 features)"
             )
 
@@ -167,7 +167,7 @@ maxdat <- (envdat
     %>% group_by(method)
     %>% filter(upr == max(upr))
     %>% ungroup()
-    ## juul (J=50) / roahd(fda) (J=2)/ mahal
+    ## juul (J=50) / roahd(fda) (J=2)/ mahal / L_2
     %>% mutate(xoff = c(+40, +10, -30, -40),
                yoff = c(50, 70, 50, 90))
 )
@@ -204,7 +204,7 @@ options(tikzMetricPackages = c("\\usepackage[utf8]{inputenc}","\\usepackage[T1]{
        standAlone = TRUE,
        width = 6, height = 6, units = "in")
 
- ggsave(cent_plot2,
-        device = "png",
-        filename = "cent_plot2.png",
-        width = 6, height = 6, units = "in")
+ # ggsave(cent_plot2,
+ #        device = "png",
+ #        filename = "cent_plot2.png",
+ #        width = 6, height = 6, units = "in")
