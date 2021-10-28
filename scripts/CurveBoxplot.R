@@ -61,7 +61,7 @@ stopifnot(isSymmetric(dmatl2))
 md2l2 <- rowSums(dmatl2^2)
 m2l2 <- which.min(md2l2)
 ## corresponding to median: minimize sum of distances
-md1l2 <- rowSums(dmatl2)
+md1l2 <- rowSums(dmatl2) ## these are depths
 m1l2 <- which.min(md1l2)
 ## Correlated mean and median?
 cor.test(md1l2,md2l2,method="spearman")$estimate
