@@ -98,9 +98,9 @@ envelope_list <- c(envelope_list,
                    list(fda=fda_new))
 ## get_envelope(ensemble_J, ff$Depth>median(ff$Depth))))
 
-library(fda)
+
 fbplot_env <- list()
-tvec <- 0:149
+# tvec <- 0:149
 for (m in c("BD2", "MBD", "Both")) {
     ## fda::fbplot can't handle tibbles
     ff <- fda::fbplot(as.data.frame(ensemble_J), x = tvec, plot=FALSE, method=m)
@@ -147,8 +147,6 @@ envdat <- dplyr::bind_rows(envelope_list, .id="method")
 
 long_ensemble <- ensemble_J %>% as.matrix() %>% reshape2::melt() %>%
     rename(tvec="Var1",grp="Var2") %>% mutate(across(tvec, ~.-1))
-
-
 
 theme_set(theme_bw())
 ## ggplot(envdat, aes(tvec)) + geom_ribbon(aes(ymin=lwr,ymax=upr),colour=NA, alpha=0.4, fill="blue") +

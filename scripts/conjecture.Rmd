@@ -85,7 +85,7 @@ plot(y1,y2,xlab="mean pairwise dist",ylab="dist to centroid")
 plot(rank(y1),rank(y2),xlab="mean pairwise dist",ylab="dist to centroid")
 ```
 
-
+## Mahalanobis norm on Juul's data:
 
 # References
 

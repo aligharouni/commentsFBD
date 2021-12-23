@@ -3,7 +3,7 @@ title: "FBD and Machine Leaning"
 author: "Ali Gharouni"
 date: "`r format(Sys.time(),'%d %b %Y')`"
 output: html_document
-bibliography: ../AliMac.bib
+bibliography: ../curveBP.bib
 ---
 
 ```{r setup, include=FALSE}
