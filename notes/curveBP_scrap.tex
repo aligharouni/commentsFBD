@@ -134,7 +134,15 @@ set? Does the answer differ depending on step 3 (choice of distance)?
 Another email the same day:
 you might be able to show that the conjecture does *not* hold for some fairly simple distance metric (e.g. log(Euclidean) or some similar kind of geometric-mean distance), in which case it would also settle most of the question.
 
+\section*{Appendix}
 
+\begin{figure}[ht]\centering
+  \includegraphics[width=\linewidth]{scripts/cent_plot2.pdf}
+  \caption{Comparison of 90\% central regions computed with
+    different functional boxplot and pairwise-distance methods, using epidemic curve ensembles from \juul. FBD = functional band distance; $J$ = number of curves used for centrality calculation. Curve with $J=2$ computed via the \texttt{roahd} package \citep{roahd}, curve with $J=50$ used our own implementation of the FBD algorithm described by \juul, curve with Mahalanobis (5 features) used Mahalanobis distance on features of interest including the peak prevalence, the time at which the peak occurs, the initial growth rate, epidemic duration, and total size of the epidemic.
+  }
+  \label{p.b}
+\end{figure}
 
 
 \end{document}
