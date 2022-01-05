@@ -1,5 +1,18 @@
 \documentclass[fleqn,10pt,lineno]{wlpeerj}
 
+\usepackage{xspace}
+\usepackage{hyperref}
+\usepackage{array}
+\usepackage{tikz}
+
+\newcommand{\comment}{\showcomment}
+\newcommand{\showcomment}[3]{\textcolor{#1}{\textbf{[#2: }\textsl{#3}\textbf{]}}}
+\newcommand{\nocomment}[3]{}
+\newcommand{\pkg}[1]{\textsf{#1}}  %{\texttt{#1}}
+\newcommand{\ncurve}{\ensuremath{N_{\textrm{curves}}}\xspace}
+\newcommand{\nsample}{\ensuremath{N_{\textrm{samples}}}\xspace}
+\newcommand{\juul}{Juul \emph{et al.}\xspace}  %% ref w/o year and hyperlink
+
 \title{Functional boxplots for epidemic and other data: extensions of Juul \emph{et al.} (2021)}
 %  Additional details on centrality measure of epidemic functional data
 
@@ -59,7 +72,8 @@ hospitalization rate; (ii) the time at which the peak occurs; (iii) the initial 
 The 90\% central regions computed with both pairwise Mahalanobis distance approach and FBD with $J=2$ are comparable with \juul's result, i.e., FBD with $J=50$. Both pairwise Mahalanobis distance approach and FBD with $J=2$ identify an earlier peak as being part of the central set, while \juul's result may be shifted by 1 index point relative to other two.
 
 \begin{figure}[ht]\centering
-  \includegraphics[width=\linewidth]{scripts/cent_plot.pdf}
+  % \includegraphics[width=\linewidth]{scripts/cent_plot.pdf}
+  \includegraphics[width=\linewidth]{cent_plot.pdf}
   \caption{Comparison of 90\% central regions computed with
     different functional boxplot methods, using epidemic curve ensembles from \juul. FBD = functional band distance; $J$ = number of curves used for centrality calculation. Curve with $J=2$ computed via the \texttt{roahd} package \citep{roahd}: curve with $J=50$ used our own implementation of the functional band distance algorithm described by \juul, curve with Mahalanobis (5 features) used Mahalanobis distance on features of interest including the peak value of incidence, the time at which the peak occurs, the initial growth rate, epidemic duration, and final size of the epidemic.
   }

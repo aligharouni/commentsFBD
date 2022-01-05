@@ -1,7 +1,7 @@
 ## Dr. Ben Bolker and Ali Gharouni
-## Spring 2021, UNiversity of McMaster
+## Spring 2021, University of McMaster
 ## Comparison of Juul's work with alternative centrality scoring of an epidemic ensemble.
-## We used L2 norm, FBP and Mahalanobis on probes.
+## We used L2 norm, FBP (J=50, J=2) and Mahalanobis on probes.
 # setwd("projects/commentsFBD/scripts/")
 source('functions.R')
 library(tidyverse)
@@ -17,7 +17,7 @@ library(tikzDevice)
 
 do_mahal <- FALSE
 
-## Placeholder to save the method specific envelopes including Juul's work, L2, FBP, Mahalonobis on probes.
+## Placeholder to save the method specific envelopes including Juul's work, FBP, Mahalonobis on probes.
 envelope_list <- list()
 
 ###################################
@@ -205,54 +205,50 @@ options(tikzMetricPackages = c("\\usepackage[utf8]{inputenc}","\\usepackage[T1]{
        standAlone = TRUE,
        width = 6, height = 6, units = "in")
 
- # ggsave(cent_plot,
- #        device = "png",
- #        filename = "cent_plot.png",
- #        width = 6, height = 6, units = "in")
-
+ 
  ## APPENDIX PLOT #######################################################
  
-# maxdat2 <- (envdat
+# # maxdat2 <- (envdat
+# #              %>% group_by(method)
+# #              %>% filter(upr == max(upr))
+# #              %>% ungroup()
+# #              ## juul (J=50) / roahd(fda) (J=2)/ mahal / L_2
+# #              %>% mutate(xoff = c(+40, +10, -30, -40),
+# #                         yoff = c(50, 70, 50, 90))
+# #  )
+#  
+#  maxdat2 <- (envdat
+#              %>% filter(method== "$\\ell_2$")
 #              %>% group_by(method)
 #              %>% filter(upr == max(upr))
 #              %>% ungroup()
 #              ## juul (J=50) / roahd(fda) (J=2)/ mahal / L_2
-#              %>% mutate(xoff = c(+40, +10, -30, -40),
-#                         yoff = c(50, 70, 50, 90))
+#              %>% mutate(xoff = c(30),
+#                         yoff = c(90))
 #  )
- 
- maxdat2 <- (envdat
-             %>% filter(method== "$\\ell_2$")
-             %>% group_by(method)
-             %>% filter(upr == max(upr))
-             %>% ungroup()
-             ## juul (J=50) / roahd(fda) (J=2)/ mahal / L_2
-             %>% mutate(xoff = c(30),
-                        yoff = c(90))
- )
- 
- cent_plot2 <- ((cent_plot %+% envdat)
-                + geom_segment(data = maxdat2, aes(x = tvec + xoff, xend = tvec,
-                                                   y = upr + yoff, yend = upr,
-                                                   colour = method),
-                               width = 2)
-                ## labels after segments so segments are masked appropriately
-                + geom_label(data = maxdat2, aes(label = method,
-                                                 x = tvec + xoff,
-                                                 y = upr + yoff,
-                                                 colour = method),
-                             fill = "white",
-                             label.padding = unit(0.3, "lines"))
- )
- 
- options(tikzMetricPackages = c("\\usepackage[utf8]{inputenc}","\\usepackage[T1]{fontenc}", "\\usetikzlibrary{calc}", "\\usepackage{amssymb}"))
- ggsave(cent_plot2,
-        device = tikz,
-        filename = "cent_plot2.tex",
-        standAlone = TRUE,
-        width = 6, height = 6, units = "in")
- 
- 
+#  
+#  cent_plot2 <- ((cent_plot %+% envdat)
+#                 + geom_segment(data = maxdat2, aes(x = tvec + xoff, xend = tvec,
+#                                                    y = upr + yoff, yend = upr,
+#                                                    colour = method),
+#                                width = 2)
+#                 ## labels after segments so segments are masked appropriately
+#                 + geom_label(data = maxdat2, aes(label = method,
+#                                                  x = tvec + xoff,
+#                                                  y = upr + yoff,
+#                                                  colour = method),
+#                              fill = "white",
+#                              label.padding = unit(0.3, "lines"))
+#  )
+#  
+#  options(tikzMetricPackages = c("\\usepackage[utf8]{inputenc}","\\usepackage[T1]{fontenc}", "\\usetikzlibrary{calc}", "\\usepackage{amssymb}"))
+#  ggsave(cent_plot2,
+#         device = tikz,
+#         filename = "cent_plot2.tex",
+#         standAlone = TRUE,
+#         width = 6, height = 6, units = "in")
+#  
+#  
  
  
  

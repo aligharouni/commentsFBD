@@ -225,18 +225,18 @@ THE ABSTRACT\vskip12pt}\let\go\relax\fi
 % ######################################
 % Author's stuff
 % ######################################
-\usepackage{xspace}
-\usepackage{hyperref}
-\usepackage{array}
-\usepackage{tikz}
-
-\newcommand{\comment}{\showcomment}
-\newcommand{\showcomment}[3]{\textcolor{#1}{\textbf{[#2: }\textsl{#3}\textbf{]}}}
-\newcommand{\nocomment}[3]{}
-\newcommand{\pkg}[1]{\textsf{#1}}  %{\texttt{#1}}
-\newcommand{\ncurve}{\ensuremath{N_{\textrm{curves}}}\xspace}
-\newcommand{\nsample}{\ensuremath{N_{\textrm{samples}}}\xspace}
-\newcommand{\juul}{Juul \emph{et al.}\xspace}  %% ref w/o year and hyperlink
+% \usepackage{xspace}
+% \usepackage{hyperref}
+% \usepackage{array}
+% \usepackage{tikz}
+% 
+% \newcommand{\comment}{\showcomment}
+% \newcommand{\showcomment}[3]{\textcolor{#1}{\textbf{[#2: }\textsl{#3}\textbf{]}}}
+% \newcommand{\nocomment}[3]{}
+% \newcommand{\pkg}[1]{\textsf{#1}}  %{\texttt{#1}}
+% \newcommand{\ncurve}{\ensuremath{N_{\textrm{curves}}}\xspace}
+% \newcommand{\nsample}{\ensuremath{N_{\textrm{samples}}}\xspace}
+% \newcommand{\juul}{Juul \emph{et al.}\xspace}  %% ref w/o year and hyperlink
 
 \newcommand{\ali}[1]{\comment{magenta}{Ali}{#1}}
 \newcommand{\bmb}[1]{\comment{red}{BMB}{#1}}
