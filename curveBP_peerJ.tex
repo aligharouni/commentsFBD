@@ -72,8 +72,7 @@ hospitalization rate; (ii) the time at which the peak occurs; (iii) the initial 
 The 90\% central regions computed with both pairwise Mahalanobis distance approach and FBD with $J=2$ are comparable with \juul's result, i.e., FBD with $J=50$. Both pairwise Mahalanobis distance approach and FBD with $J=2$ identify an earlier peak as being part of the central set, while \juul's result may be shifted by 1 index point relative to other two.
 
 \begin{figure}[ht]\centering
-  % \includegraphics[width=\linewidth]{scripts/cent_plot.pdf}
-  \includegraphics[width=\linewidth]{cent_plot.pdf}
+  \includegraphics[width=\linewidth]{figs/cent_plot.pdf}
   \caption{Comparison of 90\% central regions computed with
     different functional boxplot methods, using epidemic curve ensembles from \juul. FBD = functional band distance; $J$ = number of curves used for centrality calculation. Curve with $J=2$ computed via the \texttt{roahd} package \citep{roahd}: curve with $J=50$ used our own implementation of the functional band distance algorithm described by \juul, curve with Mahalanobis (5 features) used Mahalanobis distance on features of interest including the peak value of incidence, the time at which the peak occurs, the initial growth rate, epidemic duration, and final size of the epidemic.
   }
@@ -91,6 +90,5 @@ Mahalanobis distance computations also require a computation of the covariance m
 We briefly explored distance-based methods using all samples from the curve rather than feature vectors; we found that using a standard Euclidean distance ($\ell_2$ norm) tended to underestimate key features of epidemic ensemble such as the magnitude of epidemic peaks. Other well-known distances on spaces of functions, such as Fréchet distances and dynamic time warping, intentionally exclude differences based on phase (i.e., two curves that are identical up to a phase shift are considered to be coincident) --- this property seems inappropriate for evaluating ensembles of epidemic curves, but could be useful in other settings.
 
 \bibliography{./curveBP}
-
 
 \end{document}
