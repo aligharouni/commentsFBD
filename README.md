@@ -6,4 +6,4 @@ Include working-on thoughts and scripts with MacMaster team
 
 old (uncleaned) version at tag `pre_peerj_cleanup`
 
-Required packages to build: (at least) `Cairo`, `colorspace`,`directlabels`, `fda`, `ggrastr`, `ggrepel`, `latex2exp`, `roahd`, `tidyverse, `tikzDevice`
+Required packages to build: (at least) `Cairo`, `colorspace`,`directlabels`, `fda`, `ggrastr`, `ggrepel`, `latex2exp`, `roahd`, `tidyverse`, `tikzDevice`
